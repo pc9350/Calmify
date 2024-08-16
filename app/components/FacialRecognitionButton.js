@@ -1,5 +1,6 @@
 "use client"
 import React from 'react';
+import face_recognition from '../face_recognition/page.js';
 
 const FacialRecognitionButton = () => {
  
@@ -7,6 +8,7 @@ const FacialRecognitionButton = () => {
   const handleClick = () => {
     // Logic to open the facial recognition feature
     console.log("Facial Recognition feature opened.");
+    face_recognition();
     // You can replace this with the actual function to open the feature
   };
 
