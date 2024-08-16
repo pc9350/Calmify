@@ -39,19 +39,26 @@ const CameraComponent = () => {
         }}
         className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
       >
-        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
-          <Webcam
-            audio={false}
-            ref={webcamRef}
-            screenshotFormat="image/jpeg"
-            className="w-full h-auto rounded-lg"
-          />
+        <div className="relative">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                className="w-full h-auto rounded-lg"
+              ></Webcam>
+            </div>
+          </div>
+
           <Box
             sx={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              mt: 2, // Add margin top
+              minHeight: "15vh",
+
+              p: 2, // padding to ensure some space around the buttons on smaller screens
             }}
           >
             <Grid container justifyContent="center">
@@ -119,18 +126,21 @@ const CameraComponent = () => {
 
   return (
     <div>
-      <div className="mt-96 flex justify-center ">
+        <div className="mt-96">
         <button
           onClick={() => {
             openPopup();
             toggleCamera();
           }}
-          className="bg-yellow-500 text-white font-bold py-2 px-4  rounded hover:bg-yellow-600"
         >
-          Capture
+          Open Popup
         </button>
-      </div>
-      <Popup isOpen={isPopupOpen} onClose={closePopup}></Popup>
+        </div>
+        <div className="bg-gray-100 flex items-center justify-center min-h-screen">
+          <div className="bg-white p-10 rounded shadow-md text-center max-w-full">
+            <Popup isOpen={isPopupOpen} onClose={closePopup}></Popup>
+          </div>
+        </div>
     </div>
   );
 };

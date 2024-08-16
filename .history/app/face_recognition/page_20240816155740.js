@@ -119,7 +119,7 @@ const CameraComponent = () => {
 
   return (
     <div>
-      <div className="mt-96 flex justify-center ">
+      <div className="mt-96  items-center justify-center ">
         <button
           onClick={() => {
             openPopup();
