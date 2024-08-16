@@ -115,25 +115,25 @@ export default function Navbar() {
         <div className="mt-2 space-y-2 text-center">
           <a
             href="#"
-            className="block text-gray-600 hover:text-gray-800 transition duration-300 py-2"
+            className="block text-white hover:text-gray-800 transition duration-300 py-2"
           >
-            Home
+            Pricing
           </a>
           <a
             href="#"
-            className="block text-gray-600 hover:text-gray-800 transition duration-300 py-2"
+            className="block text-white hover:text-gray-800 transition duration-300 py-2"
           >
             Features
           </a>
           <a
             href="#"
-            className="block text-gray-600 hover:text-gray-800 transition duration-300 py-2"
+            className="block text-white hover:text-gray-800 transition duration-300 py-2"
           >
             Contact
           </a>
-          <SignedOut>
+          {/* <SignedOut>
             <SignInButton className="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-400" />
-          </SignedOut>
+          </SignedOut> */}
         </div>
       </div>
     </nav>
