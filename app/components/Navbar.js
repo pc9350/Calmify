@@ -79,8 +79,8 @@ export default function Navbar() {
           <Link href="/features" className={linkStyle}>
             Features
           </Link>
-          <Link href="/contact" className={linkStyle}>
-            Contact
+          <Link href="/team" className={linkStyle}>
+            Team
           </Link>
           <SignedOut>
             <SignInButton className={`px-4 py-2 bg-sage-green text-white rounded-md hover:bg-sage-green-dark transition-all duration-300 ease-in-out transform hover:scale-105`} />
@@ -137,10 +137,10 @@ export default function Navbar() {
             Features
           </Link>
           <Link
-            href="/contact"
+            href="/team"
             className={`block transition duration-300 py-2 ${linkStyle}`}
           >
-            Contact
+            Team
           </Link>
         </div>
       </div>
