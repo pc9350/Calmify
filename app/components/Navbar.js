@@ -44,7 +44,7 @@ export default function Navbar() {
         top: 0,
         left: 0,
         right: 0,
-        backgroundColor: "rgba(255, 255, 255, 0)",
+        backgroundColor: "rgba(0, 0, 0, 0.2)",
         zIndex: 1000,
       }}
     >
@@ -56,15 +56,15 @@ export default function Navbar() {
             alt="App Logo"
             className="h-10 w-10 object-contain"
           />
-          <a href="#" className="text-2xl font-bold text-white">
+          <a href="/" className="text-2xl font-bold text-white">
             Calmify
           </a>
         </div>
 
         {/* Links for Desktop */}
         <div className="hidden md:flex space-x-6 items-center">
-          <a href="#" className="text-white">
-            Home
+          <a href="/pricing" className="text-white">
+            Pricing
           </a>
           <a href="#" className="text-white">
             Features
@@ -73,7 +73,7 @@ export default function Navbar() {
             Contact
           </a>
           <SignedOut>
-            <SignInButton className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300" />
+            <SignInButton className="px-4 py-2 bg-sage-green text-white rounded-md hover:bg-sage-green-dark transition-all duration-300 ease-in-out transform hover:scale-105" />
           </SignedOut>
           <SignedIn>
             <UserButton />
@@ -81,11 +81,11 @@ export default function Navbar() {
         </div>
         {/* Hamburger Menu for Mobile  */}
         <div className="md:hidden flex items-center space-x-4">
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-            <button
-              onClick={toggleMenu} // Toggle the menu on click
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+          <button
+            onClick={toggleMenu} // Toggle the menu on click
             className="text-gray-800 focus:outline-none"
           >
             <svg
