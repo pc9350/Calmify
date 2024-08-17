@@ -2,20 +2,17 @@
 
 import FacialRecognitionButton from "./FacialRecognitionButton";
 import { Box, TextField, Button } from "@mui/material";
-import React, { useState } from "react";
-import Wallpaper from "../../public/landing-background.jpeg";
 import TinderCard from "react-tinder-card";
+import React, { useState, useRef } from "react";
+import Wallpaper from "../../public/landing-background.jpeg";
 
 export default function LandingPage({ isSubscribed }) {
   const [userMessage, setUserMessage] = useState("");
   const [flashcards, setFlashcards] = useState([
-    { front: "How are you feeling today?", back: "How are you feeling today?" },
+    { front: "How are you feeling today?", back: "" },
   ]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [isSwiping, setIsSwiping] = useState(false);
-
   const [capturedValue, setCapturedValue] = useState({
     emotions: [{ Type: "Neutral" }],
   });
@@ -24,77 +21,23 @@ export default function LandingPage({ isSubscribed }) {
     setCapturedValue(result);
   };
 
-  const classifyMessage = (message) => {
-    const greetings = [
-      "hi", "hello", "greetings", "hey", "what's up", "howdy", "good morning",
-      "good afternoon", "good evening", "yo", "hiya", "how's it going", "sup",
-      "what's good", "morning", "afternoon", "evening", "hey there", "what's new",
-      "how are you", "what's going on", "long time no see", "nice to meet you", 
-      "pleased to meet you"
-    ];
-    
-    const emotions = [
-      "happy", "sad", "angry", "frustrated", "excited", "worried", "anxious", 
-      "nervous", "joyful", "ecstatic", "depressed", "content", "irritated", 
-      "furious", "thrilled", "disappointed", "scared", "fearful", "hopeful", 
-      "relaxed", "calm", "stressed", "overwhelmed", "lonely", "melancholic", 
-      "heartbroken", "elated", "proud", "ashamed", "guilty", "jealous", 
-      "envious", "bored", "surprised", "shocked", "confused", "puzzled", 
-      "optimistic", "pessimistic", "grateful", "thankful", "resentful", 
-      "indifferent", "apathetic", "enthusiastic", "eager", "inspired", 
-      "motivated", "ambitious"
-    ];
-    
-    const lowerCaseMessage = message.toLowerCase();
-    
-    if (greetings.some((greeting) => lowerCaseMessage.includes(greeting))) {
-      return "greeting";
-    } else if (emotions.some((emotion) => lowerCaseMessage.includes(emotion))) {
-      return "emotional";
-    } else {
-      return "other";
-    }
-  };
-
   const sendMessage = async () => {
     if (!userMessage.trim() || isLoading) return;
     setIsLoading(true);
 
     const messageToSend = userMessage;
-    const messageType = classifyMessage(userMessage);  
     let emotion_type = "";
-
-    if (messageType === "greeting") {
-      setFlashcards([{ front: "Hello! How can I assist you today?", back: "Hello! How can I assist you today?" }]);
-      setIsLoading(false);
-      return;
-    } else if (messageType === "emotional") {
-      emotion_type = "Emotional";
-    } else {
-      emotion_type = capturedValue["emotions"][0]["Type"];
-    }
-
     setUserMessage("");
 
     try {
-      let response;
-      if (messageType === "other") {
-        response = await fetch("/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            input: messageToSend,
-          }),
-        });
-      } else {
-        response = await fetch("/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            input: messageToSend + " Emotion: " + emotion_type,
-          }),
-        });
-      }
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          input:
+            messageToSend + "Emotion:" + capturedValue["emotions"][0]["Type"],
+        }),
+      });
 
       if (!response.ok) throw new Error("Network response was not ok");
 
@@ -106,11 +49,11 @@ export default function LandingPage({ isSubscribed }) {
       console.error("Error:", error);
       setFlashcards([
         {
-          front: "I'm sorry, but I encountered an error. Please try again later.",
+          front:
+            "I'm sorry, but I encountered an error. Please try again later.",
           back: "",
         },
       ]);
-      setCurrentIndex(0);
     }
 
     setIsLoading(false);
@@ -125,19 +68,19 @@ export default function LandingPage({ isSubscribed }) {
 
   const onSwipe = (direction) => {
     if (direction === "right") {
+      setFlashcards((prevCards) => [
+        ...prevCards,
+        {
+          front: `New Flashcard Front ${prevCards.length + 1}`,
+          back: `New Flashcard Back ${prevCards.length + 1}`,
+        },
+      ]);
+
       if (currentIndex < flashcards.length - 1) {
         setCurrentIndex(currentIndex + 1);
-        setIsFlipped(false);
       }
+      setIsFlipped(false);
     }
-  };
-
-  const handleSwipeStart = () => {
-    setIsSwiping(true);
-  };
-
-  const handleSwipeEnd = () => {
-    setIsSwiping(false);
   };
 
   const handleCardClick = () => {
@@ -177,23 +120,29 @@ export default function LandingPage({ isSubscribed }) {
             flexDirection="column"
             alignItems="center"
             marginBottom="100px"
-            sx={{ width: "100%", position: "relative" }}
+            sx={{ width: "100%" }}
           >
             {flashcards.length > 0 && (
               <TinderCard
                 flickOnSwipe
-                onSwipe={onSwipe}
-                onSwipeStart={handleSwipeStart}
-                onSwipeEnd={handleSwipeEnd}
+                onSwipe={(direction) => {
+                  setIsSwiping(true);
+                  onSwipe(direction);
+                }}
+                onSwipeEnd={() => {
+                  setIsSwiping(false);
+                }}
                 preventSwipe={["bottom"]}
                 swipeRequirementType="position"
                 swipeThreshold={20}
               >
                 <Box
+                  ref={cardRef}
                   sx={{
                     position: "relative",
                     width: "500px",
                     height: "500px",
+                    perspective: "1000px",
                   }}
                 >
                   <Box
@@ -203,7 +152,9 @@ export default function LandingPage({ isSubscribed }) {
                       width: "100%",
                       height: "100%",
                       transformStyle: "preserve-3d",
-                      transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+                      transform: isFlipped
+                        ? "rotateY(180deg)"
+                        : "rotateY(0deg)",
                       transition: "transform 0.6s",
                     }}
                   >
@@ -312,9 +263,11 @@ export default function LandingPage({ isSubscribed }) {
               </Button>
             </Box>
 
-            <div className="mt-12">
-              <FacialRecognitionButton onCapture={handleCapture} />
-            </div>
+            {
+              <div className="mt-12">
+                <FacialRecognitionButton onCapture={handleCapture} />
+              </div>
+            }
           </Box>
         </Box>
       </Box>
