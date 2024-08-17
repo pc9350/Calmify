@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 
 export default function Navbar() {
   const [navbarVisible, setNavbarVisible] = useState(false);
@@ -60,10 +61,12 @@ export default function Navbar() {
         {/* Logo Section */}
         <div className="flex items-center space-x-3">
           <Link href="/">
-            <img
-              src="./calmify-logo.png"
+          <Image
+              src="/calmify-logo.png"
               alt="App Logo"
-              className="h-10 w-10 object-contain"
+              width={40}
+              height={40}
+              className="object-contain"
             />
           </Link>
           <Link href="/" className={`text-2xl font-bold ${linkStyle}`}>
