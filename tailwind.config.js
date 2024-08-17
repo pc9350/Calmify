@@ -7,6 +7,9 @@ module.exports = {
       colors: {
         'sage-green': '#8FBC8F',
         'sage-green-dark': '#6B8E6B',
+        'rose-300': '#fda4af',
+        'rose-400': '#fb7185',
+        'rose-500': '#f43f5e',
       },
       animation: {
         pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
