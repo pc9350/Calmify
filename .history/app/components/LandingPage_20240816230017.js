@@ -263,11 +263,11 @@ export default function LandingPage({ isSubscribed }) {
               </Button>
             </Box>
 
-            {
+            {isSubscribed && (
               <div className="mt-12">
                 <FacialRecognitionButton onCapture={handleCapture} />
               </div>
-            }
+            )}
           </Box>
         </Box>
       </Box>

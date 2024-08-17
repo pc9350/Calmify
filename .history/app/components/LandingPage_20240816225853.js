@@ -33,10 +33,7 @@ export default function LandingPage({ isSubscribed }) {
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input:
-            messageToSend + "Emotion:" + capturedValue["emotions"][0]["Type"],
-        }),
+        body: JSON.stringify({ input: messageToSend }),
       });
 
       if (!response.ok) throw new Error("Network response was not ok");
@@ -263,11 +260,11 @@ export default function LandingPage({ isSubscribed }) {
               </Button>
             </Box>
 
-            {
+            {isSubscribed && (
               <div className="mt-12">
-                <FacialRecognitionButton onCapture={handleCapture} />
+                <FacialRecognitionButton />
               </div>
-            }
+            )}
           </Box>
         </Box>
       </Box>
