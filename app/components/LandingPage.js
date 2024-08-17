@@ -41,7 +41,11 @@ export default function LandingPage({ isSubscribed }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify([
           ...messages,
-          { role: "user", content: messageToSend },
+          {
+            role: "user",
+            content:
+              messageToSend + "Emotion:" + capturedValue["emotions"][0]["Type"],
+          },
         ]),
       });
 
@@ -244,7 +248,6 @@ export default function LandingPage({ isSubscribed }) {
             {
               <div className="mt-12">
                 <FacialRecognitionButton onCapture={handleCapture} />
-                <p>Captured Value: {JSON.stringify(capturedValue)}</p>
               </div>
             }
           </Box>
