@@ -1,22 +1,41 @@
-"use client"
-import React from 'react';
+"use client";
+import React, { useState } from "react";
+import CameraComponent from "../face_recognition/page";
 
-const FacialRecognitionButton = () => {
- 
+const FacialRecognitionButton = ({ onCapture }) => {
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   const handleClick = () => {
-    // Logic to open the facial recognition feature
-    console.log("Facial Recognition feature opened.");
-    // You can replace this with the actual function to open the feature
+    setIsCameraOpen(true);
+  };
+
+  const handleCloseCamera = () => {
+    setIsCameraOpen(false);
+  };
+
+  const handleCapture = (result) => {
+    if (typeof onCapture === "function") {
+      onCapture(result);
+    } else {
+      console.error("onCapture is not a function");
+    }
+    handleCloseCamera();
   };
 
   return (
-    <button
-      onClick={handleClick}
-      className="px-6 py-3 bg-lime-600 text-white hover:bg-lime-900 transition duration-300 border"
-    >
-      Open Facial Recognition
-    </button>
+    <div>
+      <button
+        onClick={handleClick}
+        className="px-6 py-3 bg-lime-600 text-white hover:bg-lime-900 transition duration-300 border"
+      >
+        Open Facial Recognition
+      </button>
+      <CameraComponent
+        isOpen={isCameraOpen}
+        onClose={handleCloseCamera}
+        onCapture={handleCapture}
+      />
+    </div>
   );
 };
 
