@@ -4,7 +4,7 @@ import Webcam from "react-webcam";
 import { db } from "../../firebase";
 import { Box, Button, ButtonGroup, Grid } from "@mui/material";
 
-const CameraComponent = ({ isOpen, onClose }) => {
+const CameraComponent = ({ isOpen, onClose, onCapture }) => {
   const webcamRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [emotionResult, setEmotionResult] = useState(null);
@@ -36,6 +36,7 @@ const CameraComponent = ({ isOpen, onClose }) => {
           const result = await response.json();
           console.log("Emotion detection result:", result);
           setEmotionResult(result);
+          onCapture(result);
         } else {
           const errorData = await response.json();
           console.error("Failed to detect emotion:", errorData.error);
@@ -104,6 +105,5 @@ const CameraComponent = ({ isOpen, onClose }) => {
     )
   );
 };
-
 
 export default CameraComponent;

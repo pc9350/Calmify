@@ -1,43 +1,51 @@
-'use client';
+"use client";
 
-import FacialRecognitionButton from"./FacialRecognitionButton";
-import { Stack, Box, TextField, Button } from"@mui/material";
-import TinderCard from'react-tinder-card';
-import React, { useState, useRef, useEffect } from'react';
-import Wallpaper from '../../public/landing-background.jpeg';
+import FacialRecognitionButton from "./FacialRecognitionButton";
+import { Stack, Box, TextField, Button } from "@mui/material";
+import TinderCard from "react-tinder-card";
+import React, { useState, useRef, useEffect } from "react";
+import Wallpaper from "../../public/landing-background.jpeg";
 
 export default function LandingPage({ isSubscribed }) {
   const [messages, setMessages] = useState([
     {
-      role: 'assistant',
+      role: "assistant",
       content: "How are you feeling today?",
     },
   ]);
 
-  const [userMessage, setUserMessage] = useState('');
+  const [userMessage, setUserMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [capturedValue, setCapturedValue] = useState({});
+
+  const handleCapture = (result) => {
+    setCapturedValue(result);
+  };
 
   const sendMessage = async () => {
     if (!userMessage.trim() || isLoading) return;
     setIsLoading(true);
 
     const messageToSend = userMessage;
-    setUserMessage('');
+    setUserMessage("");
 
     setMessages((messages) => [
       ...messages,
-      { role: 'user', content: messageToSend },
-      { role: 'assistant', content: '' },
+      { role: "user", content: messageToSend },
+      { role: "assistant", content: "" },
     ]);
 
     try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify([...messages, { role: 'user', content: messageToSend }]),
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify([
+          ...messages,
+          { role: "user", content: messageToSend },
+        ]),
       });
 
-      if (!response.ok) thrownewError('Network response was not ok');
+      if (!response.ok) thrownewError("Network response was not ok");
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -56,10 +64,14 @@ export default function LandingPage({ isSubscribed }) {
         });
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
       setMessages((messages) => [
         ...messages,
-        { role: 'assistant', content: "I'm sorry, but I encountered an error. Please try again later." },
+        {
+          role: "assistant",
+          content:
+            "I'm sorry, but I encountered an error. Please try again later.",
+        },
       ]);
     }
 
@@ -67,7 +79,7 @@ export default function LandingPage({ isSubscribed }) {
   };
 
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
+    if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       sendMessage();
     }
@@ -84,37 +96,38 @@ export default function LandingPage({ isSubscribed }) {
   }, [messages]);
 
   const onSwipe = (direction) => {
-    console.log('You swiped: ' + direction);
+    console.log("You swiped: " + direction);
   };
 
   const onCardLeftScreen = (identifier) => {
-    console.log(identifier + ' left the screen');
+    console.log(identifier + " left the screen");
   };
 
   return (
     <>
       <Box
-        sx={{backgroundImage: `url(${Wallpaper.src})`,
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
-        flexDirection: "column",
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
+        sx={{
+          backgroundImage: `url(${Wallpaper.src})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+          flexDirection: "column",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100vw",
+          height: "100vh",
+          overflow: "hidden",
         }}
       >
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100vh',
-            width: '100vw',
-            marginTop: '10%',
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
+            width: "100vw",
+            marginTop: "10%",
           }}
         >
           <Box
@@ -122,17 +135,29 @@ export default function LandingPage({ isSubscribed }) {
             flexDirection="column"
             alignItems="center"
             marginBottom="100px"
-            sx={{ width: '100%' }}
+            sx={{ width: "100%" }}
           >
             <TinderCard
               flickOnSwipe
               onSwipe={onSwipe}
-              onCardLeftScreen={() => onCardLeftScreen('fooBar')}
-              preventSwipe={['bottom']}
+              onCardLeftScreen={() => onCardLeftScreen("fooBar")}
+              preventSwipe={["bottom"]}
             >
-              <Stack direction="column"spacing={2}flexGrow={1}overflow="auto"maxHeight="100%">
+              <Stack
+                direction="column"
+                spacing={2}
+                flexGrow={1}
+                overflow="auto"
+                maxHeight="100%"
+              >
                 {messages.map((message, index) => (
-                  <Box key={index }display="flex"justifyContent={message.role === 'assistant' ? 'flex-start' : 'flex-end'}> 
+                  <Box
+                    key={index}
+                    display="flex"
+                    justifyContent={
+                      message.role === "assistant" ? "flex-start" : "flex-end"
+                    }
+                  >
                     <Box
                       alignItems="center"
                       justifyContent="center"
@@ -149,10 +174,10 @@ export default function LandingPage({ isSubscribed }) {
                     </Box>
                   </Box>
                 ))}
-                  <div ref={messagesEndRef} />
-                </Stack>
+                <div ref={messagesEndRef} />
+              </Stack>
             </TinderCard>
-          
+
             <Box
               width="100%"
               maxWidth="500px"
@@ -169,54 +194,59 @@ export default function LandingPage({ isSubscribed }) {
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
                 sx={{
-                  marginTop: '20px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 8px rgba(128, 128, 128, 0.5)',
+                  marginTop: "20px",
+                  backgroundColor: "rgba(255, 255, 255, 0.8)",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 8px rgba(128, 128, 128, 0.5)",
                   color: "black",
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': { borderColor: 'lightgray' },
-                    '&:hover fieldset': { borderColor: 'black' },
-                    '&.Mui-focused fieldset': { borderColor: 'black' },
-                    '&.Mui-focused': { boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)' },
-                    '& input': { color: 'black' },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "lightgray" },
+                    "&:hover fieldset": { borderColor: "black" },
+                    "&.Mui-focused fieldset": { borderColor: "black" },
+                    "&.Mui-focused": {
+                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
+                    },
+                    "& input": { color: "black" },
                   },
-                  '& .MuiInputLabel-root': { color: 'black' },
-                  '& .MuiInputLabel-root.Mui-focused': { color: 'black' },
+                  "& .MuiInputLabel-root": { color: "black" },
+                  "& .MuiInputLabel-root.Mui-focused": { color: "black" },
                 }}
               />
-              <Button 
-                variant="contained" 
-                onClick={sendMessage} 
-                disabled={isLoading} 
+              <Button
+                variant="contained"
+                onClick={sendMessage}
+                disabled={isLoading}
                 sx={{
-                  height: '55px',
-                  marginLeft: '5px',
-                  border: '1pxsolidlightgray',
-                  textTransform: 'none',
-                  color: 'black',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginTop: '20px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                  borderRadius: '8px',
-                  boxShadow: '04px8pxrgba(128, 128, 128, 0.5)',
-                  '&:hover': {
-                    borderColor: 'black',
-                    boxShadow: '04px8pxrgba(0, 0, 0, 0.5)',
-                    background: 'rgba(255, 255, 255, 0.8)',
-                  }
+                  height: "55px",
+                  marginLeft: "5px",
+                  border: "1pxsolidlightgray",
+                  textTransform: "none",
+                  color: "black",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: "20px",
+                  backgroundColor: "rgba(255, 255, 255, 0.8)",
+                  borderRadius: "8px",
+                  boxShadow: "04px8pxrgba(128, 128, 128, 0.5)",
+                  "&:hover": {
+                    borderColor: "black",
+                    boxShadow: "04px8pxrgba(0, 0, 0, 0.5)",
+                    background: "rgba(255, 255, 255, 0.8)",
+                  },
                 }}
               >
-                {isLoading ? 'Sending...' : 'Send'}
+                {isLoading ? "Sending..." : "Send"}
               </Button>
             </Box>
 
-            {/* Facial Recognition Button - Only visible if the user is a premium subscriber */}
-            {isSubscribed && (
-              <div className="mt-12"><FacialRecognitionButton /></div>
-            )}
+            {/* Facial Recognition Button - Only visible if the user is a premium subscriber isSubscribed && */}
+            {
+              <div className="mt-12">
+                <FacialRecognitionButton onCapture={handleCapture} />
+                <p>Captured Value: {JSON.stringify(capturedValue)}</p>
+              </div>
+            }
           </Box>
         </Box>
       </Box>

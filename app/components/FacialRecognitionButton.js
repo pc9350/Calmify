@@ -1,8 +1,8 @@
-"use client"
-import React, { useState } from 'react';
-import CameraComponent from '../face_recognition/page';
+"use client";
+import React, { useState } from "react";
+import CameraComponent from "../face_recognition/page";
 
-const FacialRecognitionButton = () => {
+const FacialRecognitionButton = ({ onCapture }) => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   const handleClick = () => {
@@ -13,6 +13,15 @@ const FacialRecognitionButton = () => {
     setIsCameraOpen(false);
   };
 
+  const handleCapture = (result) => {
+    if (typeof onCapture === "function") {
+      onCapture(result);
+    } else {
+      console.error("onCapture is not a function");
+    }
+    handleCloseCamera();
+  };
+
   return (
     <div>
       <button
@@ -21,7 +30,11 @@ const FacialRecognitionButton = () => {
       >
         Open Facial Recognition
       </button>
-      <CameraComponent isOpen={isCameraOpen} onClose={handleCloseCamera} />
+      <CameraComponent
+        isOpen={isCameraOpen}
+        onClose={handleCloseCamera}
+        onCapture={handleCapture}
+      />
     </div>
   );
 };
