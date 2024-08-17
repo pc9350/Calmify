@@ -20,101 +20,67 @@ export default function LandingPage({ isSubscribed }) {
     emotions: [{ Type: "Neutral" }],
   });
 
-  const handleCapture = (result) => {
+  const handleCapture = async (result) => {
     setCapturedValue(result);
+    const emotionType = result.emotions[0].Type;
+    sendMessage(emotionType);
   };
 
-  const classifyMessage = (message) => {
-    const greetings = [
-      "hi", "hello", "greetings", "hey", "what's up", "howdy", "good morning",
-      "good afternoon", "good evening", "yo", "hiya", "how's it going", "sup",
-      "what's good", "morning", "afternoon", "evening", "hey there", "what's new",
-      "how are you", "what's going on", "long time no see", "nice to meet you", 
-      "pleased to meet you"
-    ];
-    
-    const emotions = [
-      "happy", "sad", "angry", "frustrated", "excited", "worried", "anxious", 
-      "nervous", "joyful", "ecstatic", "depressed", "content", "irritated", 
-      "furious", "thrilled", "disappointed", "scared", "fearful", "hopeful", 
-      "relaxed", "calm", "stressed", "overwhelmed", "lonely", "melancholic", 
-      "heartbroken", "elated", "proud", "ashamed", "guilty", "jealous", 
-      "envious", "bored", "surprised", "shocked", "confused", "puzzled", 
-      "optimistic", "pessimistic", "grateful", "thankful", "resentful", 
-      "indifferent", "apathetic", "enthusiastic", "eager", "inspired", 
-      "motivated", "ambitious"
-    ];
-    
-    const lowerCaseMessage = message.toLowerCase();
-    
-    if (greetings.some((greeting) => lowerCaseMessage.includes(greeting))) {
-      return "greeting";
-    } else if (emotions.some((emotion) => lowerCaseMessage.includes(emotion))) {
-      return "emotional";
-    } else {
-      return "other";
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!userMessage.trim() || isLoading) return;
-    setIsLoading(true);
-
-    const messageToSend = userMessage;
-    const messageType = classifyMessage(userMessage);  
-    let emotion_type = "";
-
-    if (messageType === "greeting") {
-      setFlashcards([{ front: "Hello! How can I assist you today?", back: "Hello! How can I assist you today?" }]);
-      setIsLoading(false);
-      return;
-    } else if (messageType === "emotional") {
-      emotion_type = "Emotional";
-    } else {
-      emotion_type = capturedValue["emotions"][0]["Type"];
-    }
-
-    setUserMessage("");
-
+  const classifyMessage = async (message) => {
     try {
-      let response;
-      if (messageType === "other") {
-        response = await fetch("/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            input: messageToSend,
-          }),
-        });
-      } else {
-        response = await fetch("/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            input: messageToSend + " Emotion: " + emotion_type,
-          }),
-        });
-      }
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
 
       if (!response.ok) throw new Error("Network response was not ok");
 
       const data = await response.json();
-      setFlashcards(data.flashcards);
-      setCurrentIndex(0);
-      setIsFlipped(false);
+      return data.type;
     } catch (error) {
       console.error("Error:", error);
-      setFlashcards([
-        {
-          front: "I'm sorry, but I encountered an error. Please try again later.",
-          back: "",
-        },
-      ]);
-      setCurrentIndex(0);
+      return "other";
     }
-
-    setIsLoading(false);
   };
+
+  const sendMessage = async (emotionType = "") => {
+    const messageToSend = userMessage.trim() === "" ? `I am ${emotionType.toLowerCase()}` : userMessage;
+  
+    if (!messageToSend.trim() || isLoading) return;
+    setIsLoading(true);
+  
+    const messageType = await classifyMessage(messageToSend);
+  
+    let response;
+    if (messageType === "greeting") {
+      setFlashcards([{ front: "Hello! How can I assist you today?", back: "Hello! How can I assist you today?" }]);
+    } else if (messageType === "emotional") {
+      response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: `Emotion: ${emotionType}` })
+      });
+    } else {
+      response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: messageToSend })
+      });
+    }
+  
+    if (!response.ok) {
+      console.error("Network response was not ok:", response.statusText);
+      throw new Error("Network response was not ok");
+    }
+  
+    const data = await response.json();
+    console.log("API response data:", data); 
+    setFlashcards(data.flashcards);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setIsLoading(false);
+  };  
 
   const handleKeyPress = (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
