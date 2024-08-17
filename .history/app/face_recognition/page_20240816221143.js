@@ -66,14 +66,7 @@ const CameraComponent = ({ isOpen, onClose, onCapture }) => {
         className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
       >
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
-          <Button
-            variant="outlined"
-            color="error"
-            size="small"
-            onClick={onClose}
-          >
-            X
-          </Button>
+          <Button variant="contained">X</Button>
           <Webcam
             audio={false}
             ref={webcamRef}
