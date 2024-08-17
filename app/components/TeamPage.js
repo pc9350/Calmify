@@ -28,12 +28,12 @@ const TeamPage = () => {
             github: "https://github.com/rakeshpuppala2590"
         },
         {
-            avatar: "https://images.unsplash.com/photo-1540569014015-19a7be504e3a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80",
+            avatar: "/jason_img.jpeg",
             name: "Jason Zhang",
             title: "Full Stack Developer",
-            desc: "Lorem Ipsum is simply dummy text of the printing and typesettin industry. Lorem Ipsum has been the industry's standard dummy",
-            linkedin: "javascript:void(0)",
-            github: "javascript:void(0)"
+            desc: "Graduate From App Academy, Proficent in Rails, MERN, JavaScript, HTML / CCS. Highly interested in AI.",
+            linkedin: "https://www.linkedin.com/in/swejasonzhang/",
+            github: "https://github.com/swejasonzhang"
         },
     ]
 
