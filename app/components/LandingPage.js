@@ -16,7 +16,9 @@ export default function LandingPage({ isSubscribed }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSwiping, setIsSwiping] = useState(false);
   const cardRef = useRef(null);
-  const [capturedValue, setCapturedValue] = useState({});
+  const [capturedValue, setCapturedValue] = useState({
+    emotions: [{ Type: "Neutral" }],
+  });
 
   const handleCapture = (result) => {
     setCapturedValue(result);
@@ -27,6 +29,7 @@ export default function LandingPage({ isSubscribed }) {
     setIsLoading(true);
 
     const messageToSend = userMessage;
+    let emotion_type = "";
     setUserMessage("");
 
     try {
