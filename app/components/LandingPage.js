@@ -4,7 +4,7 @@ import FacialRecognitionButton from"./FacialRecognitionButton";
 import { Stack, Box, TextField, Button } from"@mui/material";
 import TinderCard from'react-tinder-card';
 import React, { useState, useRef, useEffect } from'react';
-import Wallpaper from '../images/Wallpaper.jpeg';
+import Wallpaper from '../../public/landing-background.jpeg';
 
 export default function LandingPage({ isSubscribed }) {
   const [messages, setMessages] = useState([
