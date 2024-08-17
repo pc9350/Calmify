@@ -1,21 +1,22 @@
 "use client";
 
 import FacialRecognitionButton from "./FacialRecognitionButton";
-import { Box, TextField, Button } from "@mui/material";
+import { Stack, Box, TextField, Button } from "@mui/material";
 import TinderCard from "react-tinder-card";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Wallpaper from "../../public/landing-background.jpeg";
 
 export default function LandingPage({ isSubscribed }) {
-  const [userMessage, setUserMessage] = useState("");
-  const [flashcards, setFlashcards] = useState([
-    { front: "How are you feeling today?", back: "" },
+  const [messages, setMessages] = useState([
+    {
+      role: "assistant",
+      content: "How are you feeling today?",
+    },
   ]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const [userMessage, setUserMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [capturedValue, setCapturedValue] = useState({
-    emotions: [{ Type: "Neutral" }],
-  });
+  const [capturedValue, setCapturedValue] = useState({});
 
   const handleCapture = (result) => {
     setCapturedValue(result);
@@ -29,29 +30,57 @@ export default function LandingPage({ isSubscribed }) {
     let emotion_type = "";
     setUserMessage("");
 
+    setMessages((messages) => [
+      ...messages,
+      { role: "user", content: messageToSend },
+      { role: "assistant", content: "" },
+    ]);
+
+    if (capturedValue["emotions"] && capturedValue["emotions"].length > 0) {
+      emotion_type = "Neutral";
+    } else {
+      emotion_type = capturedValue["emotions"][0]["Type"];
+    }
+
     try {
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input:
-            messageToSend + "Emotion:" + capturedValue["emotions"][0]["Type"],
-        }),
+        body: JSON.stringify([
+          ...messages,
+          {
+            role: "user",
+            content: messageToSend + "Emotion:" + emotion_type,
+          },
+        ]),
       });
 
-      if (!response.ok) throw new Error("Network response was not ok");
+      if (!response.ok) thrownewError("Network response was not ok");
 
-      const data = await response.json();
-      setFlashcards(data.flashcards);
-      setCurrentIndex(0);
-      setIsFlipped(false);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const text = decoder.decode(value, { stream: true });
+        setMessages((messages) => {
+          const lastMessage = messages[messages.length - 1];
+          const otherMessages = messages.slice(0, messages.length - 1);
+          return [
+            ...otherMessages,
+            { ...lastMessage, content: lastMessage.content + text },
+          ];
+        });
+      }
     } catch (error) {
       console.error("Error:", error);
-      setFlashcards([
+      setMessages((messages) => [
+        ...messages,
         {
-          front:
+          role: "assistant",
+          content:
             "I'm sorry, but I encountered an error. Please try again later.",
-          back: "",
         },
       ]);
     }
@@ -66,27 +95,22 @@ export default function LandingPage({ isSubscribed }) {
     }
   };
 
-  const onSwipe = (direction) => {
-    if (direction === "right") {
-      setFlashcards((prevCards) => [
-        ...prevCards,
-        {
-          front: `New Flashcard Front ${prevCards.length + 1}`,
-          back: `New Flashcard Back ${prevCards.length + 1}`,
-        },
-      ]);
+  const messagesEndRef = useRef(null);
 
-      if (currentIndex < flashcards.length - 1) {
-        setCurrentIndex(currentIndex + 1);
-      }
-      setIsFlipped(false);
-    }
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleCardClick = () => {
-    if (!isSwiping) {
-      setIsFlipped(!isFlipped);
-    }
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const onSwipe = (direction) => {
+    console.log("You swiped: " + direction);
+  };
+
+  const onCardLeftScreen = (identifier) => {
+    console.log(identifier + " left the screen");
   };
 
   return (
@@ -113,6 +137,7 @@ export default function LandingPage({ isSubscribed }) {
             justifyContent: "center",
             height: "100vh",
             width: "100vw",
+            marginTop: "10%",
           }}
         >
           <Box
@@ -122,83 +147,46 @@ export default function LandingPage({ isSubscribed }) {
             marginBottom="100px"
             sx={{ width: "100%" }}
           >
-            {flashcards.length > 0 && (
-              <TinderCard
-                flickOnSwipe
-                onSwipe={(direction) => {
-                  setIsSwiping(true);
-                  onSwipe(direction);
-                }}
-                onSwipeEnd={() => {
-                  setIsSwiping(false);
-                }}
-                preventSwipe={["bottom"]}
-                swipeRequirementType="position"
-                swipeThreshold={20}
+            <TinderCard
+              flickOnSwipe
+              onSwipe={onSwipe}
+              onCardLeftScreen={() => onCardLeftScreen("fooBar")}
+              preventSwipe={["bottom"]}
+            >
+              <Stack
+                direction="column"
+                spacing={2}
+                flexGrow={1}
+                overflow="auto"
+                maxHeight="100%"
               >
-                <Box
-                  ref={cardRef}
-                  sx={{
-                    position: "relative",
-                    width: "500px",
-                    height: "500px",
-                    perspective: "1000px",
-                  }}
-                >
+                {messages.map((message, index) => (
                   <Box
-                    onClick={handleCardClick}
-                    sx={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      transformStyle: "preserve-3d",
-                      transform: isFlipped
-                        ? "rotateY(180deg)"
-                        : "rotateY(0deg)",
-                      transition: "transform 0.6s",
-                    }}
+                    key={index}
+                    display="flex"
+                    justifyContent={
+                      message.role === "assistant" ? "flex-start" : "flex-end"
+                    }
                   >
                     <Box
-                      sx={{
-                        position: "absolute",
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backfaceVisibility: "hidden",
-                        backgroundColor: "rgba(255, 255, 255, 0.8)",
-                        borderRadius: "8px",
-                        boxShadow: "0 4px 8px rgba(128, 128, 128, 0.5)",
-                        color: "black",
-                        p: 3,
-                      }}
+                      alignItems="center"
+                      justifyContent="center"
+                      display="flex"
+                      width="500px"
+                      height="500px"
+                      backgroundColor="rgba(255, 255, 255, 0.8)"
+                      borderRadius="8px"
+                      boxShadow="0 4px 8px rgba(128, 128, 128, 0.5)"
+                      color="black"
+                      p={3}
                     >
-                      {flashcards[currentIndex].front}
-                    </Box>
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backfaceVisibility: "hidden",
-                        transform: "rotateY(180deg)",
-                        backgroundColor: "rgba(255, 255, 255, 0.8)",
-                        borderRadius: "8px",
-                        boxShadow: "0 4px 8px rgba(128, 128, 128, 0.5)",
-                        color: "black",
-                        p: 3,
-                      }}
-                    >
-                      {flashcards[currentIndex].back}
+                      {message.content}
                     </Box>
                   </Box>
-                </Box>
-              </TinderCard>
-            )}
+                ))}
+                <div ref={messagesEndRef} />
+              </Stack>
+            </TinderCard>
 
             <Box
               width="100%"
@@ -234,7 +222,6 @@ export default function LandingPage({ isSubscribed }) {
                   "& .MuiInputLabel-root.Mui-focused": { color: "black" },
                 }}
               />
-
               <Button
                 variant="contained"
                 onClick={sendMessage}
@@ -242,7 +229,7 @@ export default function LandingPage({ isSubscribed }) {
                 sx={{
                   height: "55px",
                   marginLeft: "5px",
-                  border: "1px solid lightgray",
+                  border: "1pxsolidlightgray",
                   textTransform: "none",
                   color: "black",
                   display: "flex",
@@ -251,10 +238,10 @@ export default function LandingPage({ isSubscribed }) {
                   marginTop: "20px",
                   backgroundColor: "rgba(255, 255, 255, 0.8)",
                   borderRadius: "8px",
-                  boxShadow: "0 4px 8px rgba(128, 128, 128, 0.5)",
+                  boxShadow: "04px8pxrgba(128, 128, 128, 0.5)",
                   "&:hover": {
                     borderColor: "black",
-                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
+                    boxShadow: "04px8pxrgba(0, 0, 0, 0.5)",
                     background: "rgba(255, 255, 255, 0.8)",
                   },
                 }}
@@ -263,6 +250,7 @@ export default function LandingPage({ isSubscribed }) {
               </Button>
             </Box>
 
+            {/* Facial Recognition Button - Only visible if the user is a premium subscriber isSubscribed && */}
             {
               <div className="mt-12">
                 <FacialRecognitionButton onCapture={handleCapture} />
