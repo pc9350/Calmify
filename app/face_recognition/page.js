@@ -1,15 +1,7 @@
 "use client";
 import React, { useState, useRef, useCallback } from "react";
 import Webcam from "react-webcam";
-import { ref, uploadString } from "firebase/storage";
-import { storage } from "../firebase";
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-  DialogTitle,
-} from "@headlessui/react";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { db } from "../../firebase";
 import { Box, Button, ButtonGroup, Grid } from "@mui/material";
 
 const CameraComponent = () => {
@@ -47,26 +39,19 @@ const CameraComponent = () => {
         }}
         className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
       >
-        <div className="relative">
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
-              <Webcam
-                audio={false}
-                ref={webcamRef}
-                screenshotFormat="image/jpeg"
-                className="w-full h-auto rounded-lg"
-              ></Webcam>
-            </div>
-          </div>
-
+        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
+          <Webcam
+            audio={false}
+            ref={webcamRef}
+            screenshotFormat="image/jpeg"
+            className="w-full h-auto rounded-lg"
+          />
           <Box
             sx={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              minHeight: "15vh",
-
-              p: 2, // padding to ensure some space around the buttons on smaller screens
+              mt: 2, // Add margin top
             }}
           >
             <Grid container justifyContent="center">
@@ -96,14 +81,14 @@ const CameraComponent = () => {
 
   const handleSave = async () => {
     if (capturedImage) {
-      console.log("Storage object:", storage);
-      if (!storage) {
-        console.error("Storage is undefined");
+      console.log("db object:", db);
+      if (!db) {
+        console.error("db is undefined");
         return;
       }
       try {
-        const storageRef = ref(storage, "images/" + Date.now() + ".jpg");
-        await uploadString(storageRef, capturedImage, "data_url");
+        // const dbRef = ref(db, "images/" + Date.now() + ".jpg");
+        // await uploadString(dbRef, capturedImage, "data_url");
 
         const response = await fetch("/api/emotion_recognition", {
           method: "POST",
@@ -133,22 +118,19 @@ const CameraComponent = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center">
-      <div>
+    <div>
+      <div className="mt-96 flex justify-center ">
         <button
           onClick={() => {
             openPopup();
             toggleCamera();
           }}
+          className="bg-yellow-500 text-white font-bold py-2 px-4  rounded hover:bg-yellow-600"
         >
-          Open Popup
+          Capture
         </button>
-        <div className="bg-gray-100 flex items-center justify-center min-h-screen">
-          <div class="bg-white p-10 rounded shadow-md text-center max-w-full">
-            <Popup isOpen={isPopupOpen} onClose={closePopup}></Popup>
-          </div>
-        </div>
       </div>
+      <Popup isOpen={isPopupOpen} onClose={closePopup}></Popup>
     </div>
   );
 };
