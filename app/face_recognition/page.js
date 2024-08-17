@@ -4,16 +4,11 @@ import Webcam from "react-webcam";
 import { db } from "../../firebase";
 import { Box, Button, ButtonGroup, Grid } from "@mui/material";
 
-const CameraComponent = () => {
+const CameraComponent = ({ isOpen, onClose }) => {
   const webcamRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [emotionResult, setEmotionResult] = useState(null);
   const [isCameraEnabled, setIsCameraEnabled] = useState(false);
-
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-
-  const openPopup = () => setIsPopupOpen(true);
-  const closePopup = () => setIsPopupOpen(false);
 
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
@@ -21,10 +16,39 @@ const CameraComponent = () => {
     setIsCameraEnabled(false);
   }, [webcamRef]);
 
-  const Popup = ({ children, isOpen, onClose }) => {
-    if (!isOpen) return null;
+  const handleSave = async () => {
+    if (capturedImage) {
+      console.log("db object:", db);
+      if (!db) {
+        console.error("db is undefined");
+        return;
+      }
+      try {
+        const response = await fetch("/api/emotion_recognition", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ image: capturedImage }),
+        });
 
-    return (
+        if (response.ok) {
+          const result = await response.json();
+          console.log("Emotion detection result:", result);
+          setEmotionResult(result);
+        } else {
+          const errorData = await response.json();
+          console.error("Failed to detect emotion:", errorData.error);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Failed: " + error.message);
+      }
+    }
+  };
+
+  return (
+    isOpen && (
       <div
         style={{
           position: "fixed",
@@ -32,7 +56,8 @@ const CameraComponent = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          zIndex: 1000,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -76,63 +101,9 @@ const CameraComponent = () => {
           </Box>
         </div>
       </div>
-    );
-  };
-
-  const handleSave = async () => {
-    if (capturedImage) {
-      console.log("db object:", db);
-      if (!db) {
-        console.error("db is undefined");
-        return;
-      }
-      try {
-        // const dbRef = ref(db, "images/" + Date.now() + ".jpg");
-        // await uploadString(dbRef, capturedImage, "data_url");
-
-        const response = await fetch("/api/emotion_recognition", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ image: capturedImage }),
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          console.log("Emotion detection result:", result);
-          setEmotionResult(result);
-        } else {
-          const errorData = await response.json();
-          console.error("Failed to detect emotion:", errorData.error);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        alert("Failed: " + error.message);
-      }
-    }
-  };
-
-  const toggleCamera = () => {
-    setIsCameraEnabled(!isCameraEnabled);
-  };
-
-  return (
-    <div>
-      <div className="mt-96 flex justify-center ">
-        <button
-          onClick={() => {
-            openPopup();
-            toggleCamera();
-          }}
-          className="bg-yellow-500 text-white font-bold py-2 px-4  rounded hover:bg-yellow-600"
-        >
-          Capture
-        </button>
-      </div>
-      <Popup isOpen={isPopupOpen} onClose={closePopup}></Popup>
-    </div>
+    )
   );
 };
+
 
 export default CameraComponent;

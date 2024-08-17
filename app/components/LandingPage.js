@@ -114,6 +114,7 @@ export default function LandingPage({ isSubscribed }) {
             justifyContent: 'center',
             height: '100vh',
             width: '100vw',
+            marginTop: '10%',
           }}
         >
           <Box
