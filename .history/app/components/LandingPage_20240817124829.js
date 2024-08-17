@@ -37,6 +37,12 @@ export default function LandingPage({ isSubscribed }) {
       { role: "user", content: messageToSend },
       { role: "assistant", content: "" },
     ]);
+    console.log();
+    if (capturedValue["emotions"] && capturedValue["emotions"].length > 0) {
+      emotion_type = "Neutral";
+    } else {
+      emotion_type = capturedValue["emotions"][0]["Type"];
+    }
 
     try {
       const response = await fetch("/api/generate", {
@@ -46,8 +52,7 @@ export default function LandingPage({ isSubscribed }) {
           ...messages,
           {
             role: "user",
-            content:
-              messageToSend + "Emotion:" + capturedValue["emotions"][0]["Type"],
+            content: messageToSend + "Emotion:" + emotion_type,
           },
         ]),
       });

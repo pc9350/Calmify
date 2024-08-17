@@ -16,9 +16,7 @@ export default function LandingPage({ isSubscribed }) {
 
   const [userMessage, setUserMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [capturedValue, setCapturedValue] = useState({
-    emotions: [{ Type: "Neutral" }],
-  });
+  const [capturedValue, setCapturedValue] = useState({});
 
   const handleCapture = (result) => {
     setCapturedValue(result);
@@ -29,7 +27,6 @@ export default function LandingPage({ isSubscribed }) {
     setIsLoading(true);
 
     const messageToSend = userMessage;
-    let emotion_type = "";
     setUserMessage("");
 
     setMessages((messages) => [
@@ -37,6 +34,12 @@ export default function LandingPage({ isSubscribed }) {
       { role: "user", content: messageToSend },
       { role: "assistant", content: "" },
     ]);
+    const emotion_type = "";
+    if (capturedValue["emotions"].length > 0) {
+      emotion_type = "Neutral";
+    } else {
+      emotion_type = capturedValue["emotions"][0]["Type"];
+    }
 
     try {
       const response = await fetch("/api/generate", {
@@ -46,8 +49,7 @@ export default function LandingPage({ isSubscribed }) {
           ...messages,
           {
             role: "user",
-            content:
-              messageToSend + "Emotion:" + capturedValue["emotions"][0]["Type"],
+            content: messageToSend + "Emotion:" + emotion_type,
           },
         ]),
       });

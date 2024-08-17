@@ -46,8 +46,7 @@ export default function LandingPage({ isSubscribed }) {
           ...messages,
           {
             role: "user",
-            content:
-              messageToSend + "Emotion:" + capturedValue["emotions"][0]["Type"],
+            content: messageToSend + "Emotion:" + emotion_type,
           },
         ]),
       });

@@ -16,9 +16,7 @@ export default function LandingPage({ isSubscribed }) {
 
   const [userMessage, setUserMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [capturedValue, setCapturedValue] = useState({
-    emotions: [{ Type: "Neutral" }],
-  });
+  const [capturedValue, setCapturedValue] = useState({});
 
   const handleCapture = (result) => {
     setCapturedValue(result);
@@ -29,7 +27,6 @@ export default function LandingPage({ isSubscribed }) {
     setIsLoading(true);
 
     const messageToSend = userMessage;
-    let emotion_type = "";
     setUserMessage("");
 
     setMessages((messages) => [
