@@ -17,12 +17,12 @@ const TeamPage = () => {
             github: "https://github.com/pc9350"
         },
         {
-            avatar: "/pranav_img.jpg",
+            avatar: "/isha_img.jpeg",
             name: "Isha Shreshtha",
             title: "Full Stack Developer",
             desc: "Lorem Ipsum is simply dummy text of the printing and typesettin industry. Lorem Ipsum has been the industry's standard dummy",
-            linkedin: "",
-            github: ""
+            linkedin: "https://www.linkedin.com/in/isha-shrestha/",
+            github: "https://github.com/isha038"
         },
         {
             avatar: "/Rakesh_img.jpeg",
