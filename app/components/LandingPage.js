@@ -176,7 +176,6 @@ export default function LandingPage({ isSubscribed }) {
             display="flex"
             flexDirection="column"
             alignItems="center"
-            marginBottom="100px"
             sx={{ width: "100%", position: "relative" }}
           >
             {flashcards.length > 0 && (
@@ -311,10 +310,13 @@ export default function LandingPage({ isSubscribed }) {
                 {isLoading ? "Sending..." : "Send"}
               </Button>
             </Box>
-
-            <div className="mt-12">
+            
+            {isSubscribed && (
+              <div className="mt-12">
               <FacialRecognitionButton onCapture={handleCapture} />
             </div>
+            )}
+            
           </Box>
         </Box>
       </Box>
