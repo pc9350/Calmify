@@ -135,7 +135,7 @@ export default function LandingPage({ isSubscribed }) {
   // };
   const onSwipe = async (direction) => {
     if (isDefaultFlashcards()) return;
-    setIsFlipped(false);
+
     if (direction === "right") {
       if (currentIndex < flashcards.length - 1) {
         setCurrentIndex(currentIndex + 1);
@@ -159,9 +159,6 @@ export default function LandingPage({ isSubscribed }) {
       }
     } else {
       setCurrentIndex(currentIndex + 1);
-    }
-    if (currentIndex >= flashcards.length - 1) {
-      resetToDefaultFlashcards();
     }
   };
 

@@ -12,27 +12,13 @@ import { useUser } from "@clerk/nextjs";
 export default function LandingPage({ isSubscribed }) {
   const [userMessage, setUserMessage] = useState("");
   const [flashcards, setFlashcards] = useState([
-    { front: "How are you feeling today?", back: "(^!^)" },
+    { front: "How are you feeling today?", back: "How are you feeling today?" },
   ]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSwiping, setIsSwiping] = useState(false);
   const { user } = useUser();
-  const [isSwiped, setIsSwiped] = useState(true);
-
-  const isDefaultFlashcards = () => {
-    return (
-      flashcards.length === 1 &&
-      flashcards[0].front === "How are you feeling today?"
-    );
-  };
-
-  const resetToDefaultFlashcards = () => {
-    setFlashcards([{ front: "How are you feeling today?", back: "(^!^)" }]);
-    setCurrentIndex(0);
-    setIsFlipped(false);
-  };
 
   const [capturedValue, setCapturedValue] = useState({
     emotions: [{ Type: "Neutral" }],
@@ -108,13 +94,9 @@ export default function LandingPage({ isSubscribed }) {
 
     const data = await response.json();
     console.log("API response data:", data);
-    if (data.flashcards.length === 0) {
-      resetToDefaultFlashcards();
-    } else {
-      setFlashcards(data.flashcards);
-      setCurrentIndex(0);
-      setIsFlipped(false);
-    }
+    setFlashcards(data.flashcards);
+    setCurrentIndex(0);
+    setIsFlipped(false);
     setIsLoading(false);
   };
 
@@ -134,12 +116,12 @@ export default function LandingPage({ isSubscribed }) {
   //   }
   // };
   const onSwipe = async (direction) => {
-    if (isDefaultFlashcards()) return;
-    setIsFlipped(false);
+    console.log("Swipe direction:", direction);
     if (direction === "right") {
       if (currentIndex < flashcards.length - 1) {
         setCurrentIndex(currentIndex + 1);
-        console.log(currentIndex);
+        setIsFlipped(false);
+
         // Store the current flashcard in the database
         if (user) {
           const userRef = doc(db, "users", user.id);
@@ -157,11 +139,6 @@ export default function LandingPage({ isSubscribed }) {
           }
         }
       }
-    } else {
-      setCurrentIndex(currentIndex + 1);
-    }
-    if (currentIndex >= flashcards.length - 1) {
-      resetToDefaultFlashcards();
     }
   };
 
@@ -177,6 +154,11 @@ export default function LandingPage({ isSubscribed }) {
     if (!isSwiping) {
       setIsFlipped(!isFlipped);
     }
+  };
+  const resetFlashcards = () => {
+    setCurrentIndex(0);
+    setIsFinished(false);
+    setIsFlipped(false);
   };
 
   return (
@@ -226,18 +208,13 @@ export default function LandingPage({ isSubscribed }) {
               <div></div>
             )}
 
-            {
+            {flashcards.length > 0 && (
               <TinderCard
-                key={currentIndex}
                 flickOnSwipe
                 onSwipe={onSwipe}
                 onSwipeStart={handleSwipeStart}
                 onSwipeEnd={handleSwipeEnd}
-                preventSwipe={
-                  isDefaultFlashcards()
-                    ? ["left", "right", "up", "bottom"]
-                    : ["up", "bottom"]
-                }
+                preventSwipe={["bottom"]}
                 swipeRequirementType="position"
                 swipeThreshold={20}
               >
@@ -246,8 +223,6 @@ export default function LandingPage({ isSubscribed }) {
                     position: "relative",
                     width: "500px",
                     height: "500px",
-                    opacity: isDefaultFlashcards() ? 0.5 : 1, // Reduce opacity when swiping is disabled
-                    cursor: isDefaultFlashcards() ? "not-allowed" : "grab",
                   }}
                 >
                   <Box
@@ -310,7 +285,7 @@ export default function LandingPage({ isSubscribed }) {
                   </Box>
                 </Box>
               </TinderCard>
-            }
+            )}
 
             <Box
               width="100%"
@@ -453,7 +428,9 @@ export default function LandingPage({ isSubscribed }) {
                   },
                 }}
               >
-                <FacialRecognitionButton onCapture={handleCapture} />
+                <div className="mt-12">
+                  <FacialRecognitionButton onCapture={handleCapture} />
+                </div>
               </Box>
             )}
           </Box>

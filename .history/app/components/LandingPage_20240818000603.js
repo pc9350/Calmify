@@ -28,12 +28,6 @@ export default function LandingPage({ isSubscribed }) {
     );
   };
 
-  const resetToDefaultFlashcards = () => {
-    setFlashcards([{ front: "How are you feeling today?", back: "(^!^)" }]);
-    setCurrentIndex(0);
-    setIsFlipped(false);
-  };
-
   const [capturedValue, setCapturedValue] = useState({
     emotions: [{ Type: "Neutral" }],
   });
@@ -108,13 +102,9 @@ export default function LandingPage({ isSubscribed }) {
 
     const data = await response.json();
     console.log("API response data:", data);
-    if (data.flashcards.length === 0) {
-      resetToDefaultFlashcards();
-    } else {
-      setFlashcards(data.flashcards);
-      setCurrentIndex(0);
-      setIsFlipped(false);
-    }
+    setFlashcards(data.flashcards);
+    setCurrentIndex(0);
+    setIsFlipped(false);
     setIsLoading(false);
   };
 
@@ -134,8 +124,6 @@ export default function LandingPage({ isSubscribed }) {
   //   }
   // };
   const onSwipe = async (direction) => {
-    if (isDefaultFlashcards()) return;
-    setIsFlipped(false);
     if (direction === "right") {
       if (currentIndex < flashcards.length - 1) {
         setCurrentIndex(currentIndex + 1);
@@ -159,9 +147,6 @@ export default function LandingPage({ isSubscribed }) {
       }
     } else {
       setCurrentIndex(currentIndex + 1);
-    }
-    if (currentIndex >= flashcards.length - 1) {
-      resetToDefaultFlashcards();
     }
   };
 
@@ -246,8 +231,6 @@ export default function LandingPage({ isSubscribed }) {
                     position: "relative",
                     width: "500px",
                     height: "500px",
-                    opacity: isDefaultFlashcards() ? 0.5 : 1, // Reduce opacity when swiping is disabled
-                    cursor: isDefaultFlashcards() ? "not-allowed" : "grab",
                   }}
                 >
                   <Box

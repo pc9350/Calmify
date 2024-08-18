@@ -12,7 +12,7 @@ import { useUser } from "@clerk/nextjs";
 export default function LandingPage({ isSubscribed }) {
   const [userMessage, setUserMessage] = useState("");
   const [flashcards, setFlashcards] = useState([
-    { front: "How are you feeling today?", back: "(^!^)" },
+    { front: "How are you feeling today?", back: "How are you feeling today?" },
   ]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,19 +20,6 @@ export default function LandingPage({ isSubscribed }) {
   const [isSwiping, setIsSwiping] = useState(false);
   const { user } = useUser();
   const [isSwiped, setIsSwiped] = useState(true);
-
-  const isDefaultFlashcards = () => {
-    return (
-      flashcards.length === 1 &&
-      flashcards[0].front === "How are you feeling today?"
-    );
-  };
-
-  const resetToDefaultFlashcards = () => {
-    setFlashcards([{ front: "How are you feeling today?", back: "(^!^)" }]);
-    setCurrentIndex(0);
-    setIsFlipped(false);
-  };
 
   const [capturedValue, setCapturedValue] = useState({
     emotions: [{ Type: "Neutral" }],
@@ -108,13 +95,9 @@ export default function LandingPage({ isSubscribed }) {
 
     const data = await response.json();
     console.log("API response data:", data);
-    if (data.flashcards.length === 0) {
-      resetToDefaultFlashcards();
-    } else {
-      setFlashcards(data.flashcards);
-      setCurrentIndex(0);
-      setIsFlipped(false);
-    }
+    setFlashcards(data.flashcards);
+    setCurrentIndex(0);
+    setIsFlipped(false);
     setIsLoading(false);
   };
 
@@ -134,12 +117,11 @@ export default function LandingPage({ isSubscribed }) {
   //   }
   // };
   const onSwipe = async (direction) => {
-    if (isDefaultFlashcards()) return;
-    setIsFlipped(false);
     if (direction === "right") {
       if (currentIndex < flashcards.length - 1) {
         setCurrentIndex(currentIndex + 1);
-        console.log(currentIndex);
+        setIsFlipped(false);
+
         // Store the current flashcard in the database
         if (user) {
           const userRef = doc(db, "users", user.id);
@@ -157,11 +139,6 @@ export default function LandingPage({ isSubscribed }) {
           }
         }
       }
-    } else {
-      setCurrentIndex(currentIndex + 1);
-    }
-    if (currentIndex >= flashcards.length - 1) {
-      resetToDefaultFlashcards();
     }
   };
 
@@ -226,18 +203,13 @@ export default function LandingPage({ isSubscribed }) {
               <div></div>
             )}
 
-            {
+            {isSwiped ? (
               <TinderCard
-                key={currentIndex}
                 flickOnSwipe
                 onSwipe={onSwipe}
                 onSwipeStart={handleSwipeStart}
                 onSwipeEnd={handleSwipeEnd}
-                preventSwipe={
-                  isDefaultFlashcards()
-                    ? ["left", "right", "up", "bottom"]
-                    : ["up", "bottom"]
-                }
+                preventSwipe={["bottom"]}
                 swipeRequirementType="position"
                 swipeThreshold={20}
               >
@@ -246,8 +218,6 @@ export default function LandingPage({ isSubscribed }) {
                     position: "relative",
                     width: "500px",
                     height: "500px",
-                    opacity: isDefaultFlashcards() ? 0.5 : 1, // Reduce opacity when swiping is disabled
-                    cursor: isDefaultFlashcards() ? "not-allowed" : "grab",
                   }}
                 >
                   <Box
@@ -310,7 +280,84 @@ export default function LandingPage({ isSubscribed }) {
                   </Box>
                 </Box>
               </TinderCard>
-            }
+            ) : (
+              <TinderCard
+                flickOnSwipe
+                onSwipe={onSwipe}
+                onSwipeStart={handleSwipeStart}
+                onSwipeEnd={handleSwipeEnd}
+                preventSwipe={["bottom"]}
+                swipeRequirementType="position"
+                swipeThreshold={20}
+              >
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: "500px",
+                    height: "500px",
+                  }}
+                >
+                  <Box
+                    onClick={handleCardClick}
+                    sx={{
+                      width: "500px",
+                      height: "500px",
+                      border: "none",
+                      borderRadius: "10px",
+                      background:
+                        "radial-gradient(ellipse farthest-side at 76% 77%, rgba(245, 228, 212, 0.25) 4%, rgba(255, 255, 255, 0) calc(4% + 1px)), radial-gradient(circle at 76% 40%, #fef6ec 4%, rgba(255, 255, 255, 0) 4.18%), linear-gradient(135deg, #ff0000 0%, #000036 100%), radial-gradient(ellipse at 28% 0%, #ffcfac 0%, rgba(98, 149, 144, 0.5) 100%), linear-gradient(180deg, #cd6e8a 0%, #f5eab0 69%, #d6c8a2 70%, #a2758d 100%)",
+                      backgroundBlendMode:
+                        "normal, normal, screen, overlay, normal",
+                      boxShadow: "0px 0px 10px 1px #000000",
+                      transformStyle: "preserve-3d",
+                      transform: isFlipped
+                        ? "rotateY(180deg)"
+                        : "rotateY(0deg)",
+                      transition: "transform 0.6s",
+                      border: "2px solid pink",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backfaceVisibility: "hidden",
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 8px rgba(128, 128, 128, 0.5)",
+                        color: "black",
+                        p: 3,
+                      }}
+                    >
+                      {<H1>Try Again</H1>}
+                    </Box>
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backfaceVisibility: "hidden",
+                        transform: "rotateY(180deg)",
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 8px rgba(128, 128, 128, 0.5)",
+                        color: "black",
+                        p: 3,
+                      }}
+                    >
+                      {flashcards[currentIndex].back}
+                    </Box>
+                  </Box>
+                </Box>
+              </TinderCard>
+            )}
 
             <Box
               width="100%"
