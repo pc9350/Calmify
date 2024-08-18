@@ -5,6 +5,9 @@ import { Box, Button } from "@mui/material";
 import React, { useState } from "react";
 import Wallpaper from "../../public/landing-background.jpeg";
 import TinderCard from "react-tinder-card";
+import { doc, setDoc, arrayUnion } from "firebase/firestore";
+import { db } from "@/firebase";
+import { useUser } from "@clerk/nextjs";
 
 export default function LandingPage({ isSubscribed }) {
   const [userMessage, setUserMessage] = useState("");
@@ -15,6 +18,7 @@ export default function LandingPage({ isSubscribed }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSwiping, setIsSwiping] = useState(false);
+  const { user } = useUser();
 
   const [capturedValue, setCapturedValue] = useState({
     emotions: [{ Type: "Neutral" }],
@@ -103,11 +107,32 @@ export default function LandingPage({ isSubscribed }) {
     }
   };
 
-  const onSwipe = (direction) => {
+  // const onSwipe = (direction) => {
+  //   if (direction === "right") {
+  //     if (currentIndex < flashcards.length - 1) {
+  //       setCurrentIndex(currentIndex + 1);
+  //       setIsFlipped(false);
+  //     }
+  //   }
+  // };
+  const onSwipe = async (direction) => {
     if (direction === "right") {
       if (currentIndex < flashcards.length - 1) {
         setCurrentIndex(currentIndex + 1);
         setIsFlipped(false);
+        
+        // Store the current flashcard in the database
+        if (user) {
+          const userRef = doc(db, "users", user.id);
+          try {
+            await setDoc(userRef, {
+              savedCards: arrayUnion(flashcards[currentIndex])
+            }, { merge: true });
+            console.log("Card saved successfully");
+          } catch (error) {
+            console.error("Error saving card: ", error);
+          }
+        }
       }
     }
   };
