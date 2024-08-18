@@ -15,7 +15,7 @@ import {
 
 export default function SavedCards() {
   const { user } = useUser();
-  const [flipped, setFlipped] = useState({});
+  // const [flipped, setFlipped] = useState({});
   const [savedCards, setSavedCards] = useState([
     // {
     //   front: "What is the capital of France?",
@@ -54,27 +54,49 @@ export default function SavedCards() {
   }, [user]);
 
   return (
-    <Container maxWidth="md">
-      {savedCards.length > 0 && (
-        <Box sx={{ mt: 15 }}>
-          {/* <Typography variant="h5" gutterBottom align="center">
-            Flashcards Preview
-          </Typography> */}
-
-          <Grid container spacing={5}>
-            {savedCards.map((flashcard, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <div className="flashcard-book">
-                  <p className="flashcard-p" style={{margin: "0 50px"}} >{flashcard.back}</p>
-                  <div className="flashcard-cover">
-                    <p className="flashcard-p" >{flashcard.front}</p>
-                  </div>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #E6E9F0 0%, #EEF1F5 100%)',
+        pt: 15,
+        pb: 10,
+      }}
+    >
+      <Container maxWidth="lg">
+        <Typography variant="h2" gutterBottom align="center" sx={{ 
+          fontWeight: '300', 
+          color: '#34495e',
+          mb: 5 
+        }}>
+          Your Mindful Flashcard Collection
+        </Typography>
+        <Grid container spacing={4} justifyContent="center">
+          {savedCards.map((flashcard, index) => (
+            <Grid item key={index}>
+              <div className="flashcard-book">
+                <p className="flashcard-p" style={{ margin: "0 30px" }}>{flashcard.back}</p>
+                <div className="flashcard-cover" style={{
+                  background: getCalmpGradient(),
+                }}>
+                  <p className="flashcard-p">{flashcard.front}</p>
                 </div>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      )}
-    </Container>
+              </div>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+    </Box>
   );
+}
+
+function getCalmpGradient() {
+  const gradients = [
+    'linear-gradient(135deg, #E3F2FD, #BBDEFB)',
+    'linear-gradient(135deg, #E8F5E9, #C8E6C9)',
+    'linear-gradient(135deg, #FFF3E0, #FFE0B2)',
+    'linear-gradient(135deg, #F3E5F5, #E1BEE7)',
+    'linear-gradient(135deg, #E0F7FA, #B2EBF2)',
+    'linear-gradient(135deg, #F3F4F6, #E5E7EB)',
+  ];
+  return gradients[Math.floor(Math.random() * gradients.length)];
 }
