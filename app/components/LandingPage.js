@@ -357,44 +357,45 @@ export default function LandingPage({ isSubscribed }) {
                 </Box>
               </Button>
             </Box>
-
-            <Box
-              paddingRight="20px"
-              textAlign="cemter"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              variant="contained"
-              onClick={sendMessage}
-              disabled={isLoading}
-              sx={{
-                height: "50px",
-                marginLeft: "5px",
-                marginTop: "20px",
-                textTransform: "none",
-                border: "2px solid pink",
-                outline: "none",
-                color: "rgb(19, 19, 19)",
-                backgroundColor: isLoading
-                  ? "rgba(255, 255, 255, 0.8)"
-                  : "rgb(255, 255, 255)",
-                borderRadius: "10px",
-                paddingLeft: "15px",
-                letterSpacing: "0.8px",
-                fontSize: "13.4px",
-                cursor: isLoading ? "not-allowed" : "pointer",
-                "&:hover": {
+            {isSubscribed && (
+              <Box
+                paddingRight="20px"
+                textAlign="cemter"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                variant="contained"
+                onClick={sendMessage}
+                disabled={isLoading}
+                sx={{
+                  height: "50px",
+                  marginLeft: "5px",
+                  marginTop: "20px",
+                  textTransform: "none",
+                  border: "2px solid pink",
+                  outline: "none",
+                  color: "rgb(19, 19, 19)",
                   backgroundColor: isLoading
                     ? "rgba(255, 255, 255, 0.8)"
-                    : "rgba(255, 255, 255, 0.9)",
-                },
-                "&:focus": {
-                  outline: "none",
-                },
-              }}
-            >
-              <FacialRecognitionButton onCapture={handleCapture} />
-            </Box>
+                    : "rgb(255, 255, 255)",
+                  borderRadius: "10px",
+                  paddingLeft: "15px",
+                  letterSpacing: "0.8px",
+                  fontSize: "13.4px",
+                  cursor: isLoading ? "not-allowed" : "pointer",
+                  "&:hover": {
+                    backgroundColor: isLoading
+                      ? "rgba(255, 255, 255, 0.8)"
+                      : "rgba(255, 255, 255, 0.9)",
+                  },
+                  "&:focus": {
+                    outline: "none",
+                  },
+                }}
+              >
+                <FacialRecognitionButton onCapture={handleCapture} />
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>
