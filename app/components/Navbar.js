@@ -79,8 +79,8 @@ export default function Navbar() {
           <Link href="/pricing" className={linkStyle}>
             Pricing
           </Link>
-          <Link href="/features" className={linkStyle}>
-            Features
+          <Link href="/flashcards" className={linkStyle}>
+            Library
           </Link>
           <Link href="/team" className={linkStyle}>
             Team
@@ -134,10 +134,10 @@ export default function Navbar() {
             Pricing
           </Link>
           <Link
-            href="/features"
+            href="/flashcards"
             className={`block transition duration-300 py-2 ${linkStyle}`}
           >
-            Features
+            Library
           </Link>
           <Link
             href="/team"

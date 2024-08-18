@@ -64,10 +64,10 @@ export default function SavedCards() {
           <Grid container spacing={5}>
             {savedCards.map((flashcard, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
-                <div class="flashcard-book">
-                  <p class="flashcard-p">{flashcard.back}</p>
-                  <div class="flashcard-cover">
-                    <p class="flashcard-p">{flashcard.front}</p>
+                <div className="flashcard-book">
+                  <p className="flashcard-p" style={{margin: "0 50px"}} >{flashcard.back}</p>
+                  <div className="flashcard-cover">
+                    <p className="flashcard-p" >{flashcard.front}</p>
                   </div>
                 </div>
               </Grid>
