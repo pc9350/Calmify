@@ -15,6 +15,7 @@
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^5.16.7",
     "@react-spring/web": "^9.5.5",
+    "@smithy/smithy-client": "^3.2.0",
     "@stripe/react-stripe-js": "^2.8.0",
     "@stripe/stripe-js": "^4.3.0",
     "firebase": "^10.12.5",

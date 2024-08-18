@@ -21,9 +21,14 @@ export default function LandingPage({ isSubscribed }) {
   });
 
   const handleCapture = async (result) => {
-    setCapturedValue(result);
-    const emotionType = result.emotions[0].Type;
-    sendMessage(emotionType);
+    if (result && result.emotions && result.emotions.length > 0) {
+      setCapturedValue(result);
+      const emotionType = result.emotions[0].Type;
+  
+      await sendMessage(emotionType);
+    } else {
+      console.error("No emotions detected or recognition failed.");
+    }
   };
 
   const classifyMessage = async (message) => {
@@ -45,9 +50,10 @@ export default function LandingPage({ isSubscribed }) {
   };
 
   const sendMessage = async (emotionType = "") => {
-    const messageToSend = userMessage.trim() === "" ? `I am ${emotionType.toLowerCase()}` : userMessage;
+    const messageToSend = userMessage.trim() === "" ? `I am ${String(emotionType).toLowerCase()}` : userMessage;
   
     if (!messageToSend.trim() || isLoading) return;
+  
     setIsLoading(true);
   
     const messageType = await classifyMessage(messageToSend);
@@ -59,13 +65,13 @@ export default function LandingPage({ isSubscribed }) {
       response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: `Emotion: ${emotionType}` })
+        body: JSON.stringify({ input: `Emotion: ${emotionType}` }),
       });
     } else {
       response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: messageToSend })
+        body: JSON.stringify({ input: messageToSend }),
       });
     }
   
@@ -75,7 +81,7 @@ export default function LandingPage({ isSubscribed }) {
     }
   
     const data = await response.json();
-    console.log("API response data:", data); 
+    console.log("API response data:", data);
     setFlashcards(data.flashcards);
     setCurrentIndex(0);
     setIsFlipped(false);
