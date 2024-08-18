@@ -13,7 +13,7 @@ const FacialRecognitionButton = () => {
   return (
     <button
       onClick={handleClick}
-      className="px-6 py-3 bg-lime-600 text-white hover:bg-lime-900 transition duration-300 border"
+      className="facial"
     >
       Open Facial Recognition
     </button>

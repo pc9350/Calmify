@@ -1,7 +1,7 @@
 "use client";
 
 import FacialRecognitionButton from "./FacialRecognitionButton";
-import { Box, TextField, Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import React, { useState } from "react";
 import Wallpaper from "../../public/landing-background.jpeg";
 import TinderCard from "react-tinder-card";
@@ -142,9 +142,25 @@ export default function LandingPage({ isSubscribed }) {
             display="flex"
             flexDirection="column"
             alignItems="center"
-            marginBottom="100px"
             sx={{ width: "100%", position: "relative" }}
           >
+            {isLoading ? (
+              <div class="waiting">
+                <div class="🤚">
+                <div class="👉"></div>
+                <div class="👉"></div>
+                <div class="👉"></div>
+                <div class="👉"></div>
+                <div class="🌴"></div>		
+                <div class="👍"></div>
+              </div>
+            </div>
+            ) : (
+              <div>
+
+              </div>
+            )}
+
             {flashcards.length > 0 && (
               <TinderCard
                 flickOnSwipe
@@ -165,12 +181,17 @@ export default function LandingPage({ isSubscribed }) {
                   <Box
                     onClick={handleCardClick}
                     sx={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      transformStyle: "preserve-3d",
-                      transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-                      transition: "transform 0.6s",
+                      width: '500px',
+                      height: '500px',
+                      border: 'none',
+                      borderRadius: '10px',
+                      background: 'radial-gradient(ellipse farthest-side at 76% 77%, rgba(245, 228, 212, 0.25) 4%, rgba(255, 255, 255, 0) calc(4% + 1px)), radial-gradient(circle at 76% 40%, #fef6ec 4%, rgba(255, 255, 255, 0) 4.18%), linear-gradient(135deg, #ff0000 0%, #000036 100%), radial-gradient(ellipse at 28% 0%, #ffcfac 0%, rgba(98, 149, 144, 0.5) 100%), linear-gradient(180deg, #cd6e8a 0%, #f5eab0 69%, #d6c8a2 70%, #a2758d 100%)',
+                      backgroundBlendMode: 'normal, normal, screen, overlay, normal',
+                      boxShadow: '0px 0px 10px 1px #000000',
+                      transformStyle: 'preserve-3d',
+                      transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                      transition: 'transform 0.6s',
+                      border: '2px solid pink',
                     }}
                   >
                     <Box
@@ -223,64 +244,112 @@ export default function LandingPage({ isSubscribed }) {
               justifyContent="center"
               flexDirection="row"
             >
-              <TextField
-                label="Message"
-                fullWidth
-                value={userMessage}
-                onChange={(e) => setUserMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                disabled={isLoading}
-                sx={{
-                  marginTop: "20px",
-                  backgroundColor: "rgba(255, 255, 255, 0.8)",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 8px rgba(128, 128, 128, 0.5)",
-                  color: "black",
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: "lightgray" },
-                    "&:hover fieldset": { borderColor: "black" },
-                    "&.Mui-focused fieldset": { borderColor: "black" },
-                    "&.Mui-focused": {
-                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
-                    },
-                    "& input": { color: "black" },
-                  },
-                  "& .MuiInputLabel-root": { color: "black" },
-                  "& .MuiInputLabel-root.Mui-focused": { color: "black" },
-                }}
-              />
-
+              <div style={{
+                width: '500px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'row'
+              }}>
+                <div style={{
+                  width: '100%',
+                  height: '50px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'linear-gradient(to bottom, rgb(227, 213, 255), rgb(255, 231, 231))',
+                  borderRadius: '10px',
+                  overflow: 'hidden',
+                  boxShadow: '0px 0px 10px 1px #000000',
+                  marginTop: '20px',
+                  border: '2px solid pink',
+                }}>
+                  <input
+                    style={{
+                      width: '97%',
+                      height: '35px',
+                      border: 'none',
+                      outline: 'none',
+                      caretColor: 'rgb(255, 81, 0)',
+                      backgroundColor: 'rgb(255, 255, 255)',
+                      borderRadius: '10px',
+                      paddingLeft: '15px',
+                      letterSpacing: '0.8px',
+                      color: 'rgb(19, 19, 19)',
+                      fontSize: '13.4px',
+                      ...(isLoading && {
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        cursor: 'not-allowed'
+                      })
+                    }}
+                    placeholder="Message"
+                    value={userMessage}
+                    onChange={(e) => setUserMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    disabled={isLoading}
+                    type="text"
+                  />
+                </div>
+              </div>
               <Button
                 variant="contained"
                 onClick={sendMessage}
                 disabled={isLoading}
                 sx={{
-                  height: "55px",
+                  height: "50px",
                   marginLeft: "5px",
-                  border: "1px solid lightgray",
-                  textTransform: "none",
-                  color: "black",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
                   marginTop: "20px",
-                  backgroundColor: "rgba(255, 255, 255, 0.8)",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 8px rgba(128, 128, 128, 0.5)",
-                  "&:hover": {
-                    borderColor: "black",
-                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
-                    background: "rgba(255, 255, 255, 0.8)",
+                  textTransform: "none",
+                  border: '2px solid pink',
+                  outline: 'none',
+                  color: 'rgb(19, 19, 19)', 
+                  backgroundColor: 'rgb(255, 255, 255)',
+                  borderRadius: '10px',
+                  paddingLeft: '15px',
+                  letterSpacing: '0.8px',
+                  fontSize: '13.4px',
+                  cursor: isLoading ? 'not-allowed' : 'pointer', 
+                  '&:hover': {
+                    backgroundColor: isLoading ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.9)',
                   },
+                  '&:focus': {
+                    outline: 'none',
+                  }
                 }}
               >
                 {isLoading ? "Sending..." : "Send"}
               </Button>
             </Box>
-
-            <div className="mt-12">
-              <FacialRecognitionButton onCapture={handleCapture} />
-            </div>
+            
+            <Button
+              variant="contained"
+              onClick={sendMessage}
+              disabled={isLoading}
+              sx={{
+                height: "50px",
+                marginLeft: "5px",
+                marginTop: "20px",
+                textTransform: "none",
+                border: '2px solid pink',
+                outline: 'none',
+                color: isLoading ? 'rgba(19, 19, 19, 0.6)' : 'rgb(19, 19, 19)', 
+                backgroundColor: isLoading ? 'rgba(255, 255, 255, 0.8)' : 'rgb(255, 255, 255)',
+                borderRadius: '10px',
+                paddingLeft: '15px',
+                letterSpacing: '0.8px',
+                fontSize: '13.4px',
+                cursor: isLoading ? 'not-allowed' : 'pointer', 
+                '&:hover': {
+                  backgroundColor: isLoading ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+                },
+                '&:focus': {
+                  outline: 'none',
+                }
+                }}
+              >
+                <FacialRecognitionButton onCapture={handleCapture} />
+              </Button>
+            
           </Box>
         </Box>
       </Box>
