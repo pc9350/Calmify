@@ -294,7 +294,7 @@ export default function LandingPage({ isSubscribed }) {
               <Button
                 variant="contained"
                 onClick={sendMessage}
-                disabled={isLoading}
+                disabled={!userMessage.trim() || isLoading}
                 sx={{
                   height: "50px",
                   width: '80px',
