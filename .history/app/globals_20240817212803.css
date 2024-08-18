@@ -141,14 +141,11 @@ body {
 }
 
 .flashcard-p {
-  display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: center; /* Center vertically */
   width: 100%;
-  padding: 10px; /* Add padding to create a gap between the text and edges */
   font-size: 20px;
   font-weight: bolder;
-  text-align: center; /* Ensure text is centered */
 }
 
 .🤚 {

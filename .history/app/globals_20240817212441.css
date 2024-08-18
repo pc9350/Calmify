@@ -95,7 +95,7 @@ body {
   perspective: 2000px;
   display: -webkit-box;
   display: -ms-flexbox;
-
+  align-items: center;
   display: flex;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -104,7 +104,6 @@ body {
   -ms-flex-pack: center;
   justify-content: center;
   color: #000;
-  margin: auto;
 }
 
 .flashcard-cover {
@@ -141,14 +140,8 @@ body {
 }
 
 .flashcard-p {
-  display: flex;
-  justify-content: center;
-  align-items: center; /* Center vertically */
-  width: 100%;
-  padding: 10px; /* Add padding to create a gap between the text and edges */
   font-size: 20px;
   font-weight: bolder;
-  text-align: center; /* Ensure text is centered */
 }
 
 .🤚 {
