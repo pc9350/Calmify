@@ -212,12 +212,15 @@ export default function LandingPage({ isSubscribed }) {
             sx={{ width: "100%", position: "relative" }}
           >
             {isLoading ? (
-              <div class="flex flex-row gap-2">
-                <div class="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.7s]"></div>
-                <div class="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.3s]"></div>
-                <div class="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.7s]"></div>
-                <br></br>
-                <br></br>
+              <div className="waiting">
+                <div className="🤚">
+                  <div className="👉"></div>
+                  <div className="👉"></div>
+                  <div className="👉"></div>
+                  <div className="👉"></div>
+                  <div className="🌴"></div>
+                  <div className="👍"></div>
+                </div>
               </div>
             ) : (
               <div></div>
