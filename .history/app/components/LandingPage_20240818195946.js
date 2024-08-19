@@ -13,7 +13,7 @@ export default function LandingPage({ isSubscribed }) {
   const [isExiting, setIsExiting] = useState(false);
   const [userMessage, setUserMessage] = useState("");
   const [flashcards, setFlashcards] = useState([
-    { front: "How are you feeling today?", back: "(^!^)", isFlipped: false },
+    { front: "How are you feeling today?", back: "(^!^)" },
   ]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,11 +31,9 @@ export default function LandingPage({ isSubscribed }) {
 
   const resetToDefaultFlashcards = () => {
     console.log("Resetting to default flashcards");
-    setFlashcards([
-      { front: "How are you feeling today?", back: "(^!^)", isFlipped: false },
-    ]);
+    setFlashcards([{ front: "How are you feeling today?", back: "(^!^)" }]);
     setCurrentIndex(0);
-
+    setIsFlipped(false);
     setIsExiting(false);
 
     setTimeout(() => {
@@ -122,9 +120,7 @@ export default function LandingPage({ isSubscribed }) {
       resetToDefaultFlashcards();
     } else {
       console.log("Received flashcards:", data.flashcards);
-      setFlashcards(
-        data.flashcards.map((card) => ({ ...card, isFlipped: false }))
-      );
+      setFlashcards(data.flashcards);
       setCurrentIndex(0);
       setIsFlipped(false);
     }
@@ -148,15 +144,21 @@ export default function LandingPage({ isSubscribed }) {
   // };
   const onSwipe = async (direction) => {
     if (isDefaultFlashcards()) return;
+    setIsFlipped(false);
     setIsExiting(true);
 
     const isLastCard = currentIndex >= flashcards.length - 1;
     const isSingleCardResponse =
       flashcards.length === 1 && !isDefaultFlashcards();
 
+    console.log("Current index:", currentIndex);
+    console.log("Flashcards length:", flashcards.length);
+    console.log("Is last card:", isLastCard);
+    console.log("Is single card response:", isSingleCardResponse);
+
     if (direction === "right" && !isLastCard) {
       setTimeout(() => {
-        setCurrentIndex((prevIndex) => prevIndex + 1);
+        setCurrentIndex(currentIndex + 1);
         setIsExiting(false);
       }, 800);
 
@@ -178,7 +180,7 @@ export default function LandingPage({ isSubscribed }) {
       }
     } else if (!isLastCard) {
       setTimeout(() => {
-        setCurrentIndex((prevIndex) => prevIndex + 1);
+        setCurrentIndex(currentIndex + 1);
         setIsExiting(false);
       }, 800);
     }
@@ -201,13 +203,7 @@ export default function LandingPage({ isSubscribed }) {
 
   const handleCardClick = () => {
     if (!isSwiping) {
-      setFlashcards((prevCards) =>
-        prevCards.map((card, index) =>
-          index === currentIndex
-            ? { ...card, isFlipped: !card.isFlipped }
-            : card
-        )
-      );
+      setIsFlipped(!isFlipped);
     }
   };
 
@@ -306,10 +302,9 @@ export default function LandingPage({ isSubscribed }) {
                         "normal, normal, screen, overlay, normal",
                       boxShadow: "0px 0px 10px 1px #000000",
                       transformStyle: "preserve-3d",
-                      transform: flashcards[currentIndex].isFlipped
+                      transform: isFlipped
                         ? "rotateY(180deg)"
                         : "rotateY(0deg)",
-
                       transition:
                         "transform 1.2s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 1.2s ease-in-out", // Increased duration and changed timing function
                       opacity: isExiting ? 0 : 1,
