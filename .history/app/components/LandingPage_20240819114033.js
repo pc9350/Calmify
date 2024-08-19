@@ -126,21 +126,15 @@ export default function LandingPage({ isSubscribed }) {
     }
   };
 
-  const sendMessage = async () => {
-    if (isLoading) return;
+  const sendMessage = async (emotionType = "") => {
+    const messageToSend =
+      userMessage.trim() === ""
+        ? `I am ${String(emotionType).toLowerCase()}`
+        : userMessage;
+
+    if (!messageToSend.trim() || isLoading) return;
 
     setIsLoading(true);
-
-    const messageToSend =
-      userMessage.trim() ||
-      (capturedValue.emotionType
-        ? `I am feeling ${capturedValue.emotionType.toLowerCase()}`
-        : "");
-
-    if (!messageToSend) {
-      setIsLoading(false);
-      return;
-    }
 
     const messageType = await classNameifyMessage(messageToSend);
 
@@ -156,9 +150,7 @@ export default function LandingPage({ isSubscribed }) {
       response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input: `Emotion: ${capturedValue.emotionType || messageToSend}`,
-        }),
+        body: JSON.stringify({ input: `Emotion: ${emotionType}` }),
       });
     } else {
       response = await fetch("/api/generate", {
@@ -168,29 +160,25 @@ export default function LandingPage({ isSubscribed }) {
       });
     }
 
-    if (response && !response.ok) {
+    if (!response.ok) {
       console.error("Network response was not ok:", response.statusText);
-      setIsLoading(false);
       throw new Error("Network response was not ok");
     }
 
-    if (response) {
-      const data = await response.json();
-      if (data.flashcards.length === 0) {
-        resetToDefaultFlashcards();
-      } else {
-        setFlashcards(
-          data.flashcards.map((card) => ({ ...card, isFlipped: false }))
-        );
-        setCurrentIndex(0);
-        setIsFlipped(false);
-      }
+    const data = await response.json();
+    // console.log("API response data:", data);
+    if (data.flashcards.length === 0) {
+      // console.log("No flashcards received, resetting to default");
+      resetToDefaultFlashcards();
+    } else {
+      // console.log("Received flashcards:", data.flashcards);
+      setFlashcards(
+        data.flashcards.map((card) => ({ ...card, isFlipped: false }))
+      );
+      setCurrentIndex(0);
+      setIsFlipped(false);
     }
-
     setIsLoading(false);
-    setUserMessage("");
-    setHasFacialRecognitionResult(false);
-    setCapturedValue({});
   };
 
   const handleKeyPress = (event) => {
@@ -635,13 +623,7 @@ export default function LandingPage({ isSubscribed }) {
                   },
                 }}
               >
-                <FacialRecognitionButton
-                  onCapture={handleCapture}
-                  onClick={() => {
-                    setHasFacialRecognitionResult(false);
-                    setCapturedValue({});
-                  }}
-                />
+                <FacialRecognitionButton onCapture={handleCapture} />
               </Box>
             )}
           </Box>

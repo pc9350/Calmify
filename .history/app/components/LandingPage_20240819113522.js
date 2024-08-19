@@ -62,8 +62,6 @@ export default function LandingPage({ isSubscribed }) {
   const flashcardRef = useRef(null);
   const [shareImage, setShareImage] = useState(null);
   const [isSwipingUp, setIsSwipingUp] = useState(false);
-  const [hasFacialRecognitionResult, setHasFacialRecognitionResult] =
-    useState(false);
   isSubscribed = true;
 
   const isDefaultFlashcards = () => {
@@ -93,18 +91,12 @@ export default function LandingPage({ isSubscribed }) {
 
   const handleCapture = async (result) => {
     if (result && result.emotions && result.emotions.length > 0) {
+      setCapturedValue(result);
       const emotionType = result.emotions[0].Type;
-      setCapturedValue({ emotionType });
-      setHasFacialRecognitionResult(true);
 
-      if (emotionType) {
-        setUserMessage(`I am feeling ${emotionType.toLowerCase()}`);
-      } else {
-        console.log("Emotion type not set.");
-      }
+      await sendMessage(emotionType);
     } else {
       console.error("No emotions detected or recognition failed.");
-      setHasFacialRecognitionResult(false);
     }
   };
 
@@ -126,21 +118,15 @@ export default function LandingPage({ isSubscribed }) {
     }
   };
 
-  const sendMessage = async () => {
-    if (isLoading) return;
+  const sendMessage = async (emotionType = "") => {
+    const messageToSend =
+      userMessage.trim() === ""
+        ? `I am ${String(emotionType).toLowerCase()}`
+        : userMessage;
+
+    if (!messageToSend.trim() || isLoading) return;
 
     setIsLoading(true);
-
-    const messageToSend =
-      userMessage.trim() ||
-      (capturedValue.emotionType
-        ? `I am feeling ${capturedValue.emotionType.toLowerCase()}`
-        : "");
-
-    if (!messageToSend) {
-      setIsLoading(false);
-      return;
-    }
 
     const messageType = await classNameifyMessage(messageToSend);
 
@@ -156,9 +142,7 @@ export default function LandingPage({ isSubscribed }) {
       response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input: `Emotion: ${capturedValue.emotionType || messageToSend}`,
-        }),
+        body: JSON.stringify({ input: `Emotion: ${emotionType}` }),
       });
     } else {
       response = await fetch("/api/generate", {
@@ -168,29 +152,25 @@ export default function LandingPage({ isSubscribed }) {
       });
     }
 
-    if (response && !response.ok) {
+    if (!response.ok) {
       console.error("Network response was not ok:", response.statusText);
-      setIsLoading(false);
       throw new Error("Network response was not ok");
     }
 
-    if (response) {
-      const data = await response.json();
-      if (data.flashcards.length === 0) {
-        resetToDefaultFlashcards();
-      } else {
-        setFlashcards(
-          data.flashcards.map((card) => ({ ...card, isFlipped: false }))
-        );
-        setCurrentIndex(0);
-        setIsFlipped(false);
-      }
+    const data = await response.json();
+    // console.log("API response data:", data);
+    if (data.flashcards.length === 0) {
+      // console.log("No flashcards received, resetting to default");
+      resetToDefaultFlashcards();
+    } else {
+      // console.log("Received flashcards:", data.flashcards);
+      setFlashcards(
+        data.flashcards.map((card) => ({ ...card, isFlipped: false }))
+      );
+      setCurrentIndex(0);
+      setIsFlipped(false);
     }
-
     setIsLoading(false);
-    setUserMessage("");
-    setHasFacialRecognitionResult(false);
-    setCapturedValue({});
   };
 
   const handleKeyPress = (event) => {
@@ -575,10 +555,7 @@ export default function LandingPage({ isSubscribed }) {
               <Button
                 variant="contained"
                 onClick={sendMessage}
-                disabled={
-                  (!userMessage.trim() && !hasFacialRecognitionResult) ||
-                  isLoading
-                }
+                disabled={!userMessage.trim() || isLoading}
                 sx={{
                   height: "50px",
                   marginLeft: isMobile ? "0" : "10px",
@@ -635,13 +612,7 @@ export default function LandingPage({ isSubscribed }) {
                   },
                 }}
               >
-                <FacialRecognitionButton
-                  onCapture={handleCapture}
-                  onClick={() => {
-                    setHasFacialRecognitionResult(false);
-                    setCapturedValue({});
-                  }}
-                />
+                <FacialRecognitionButton onCapture={handleCapture} />
               </Box>
             )}
           </Box>
