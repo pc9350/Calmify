@@ -160,7 +160,7 @@ export default function LandingPage({ isSubscribed }) {
       setTimeout(() => {
         setCurrentIndex(currentIndex + 1);
         setIsExiting(false);
-      }, 800);
+      }, 500);
 
       // Store the current flashcard in the database
       if (user) {
@@ -182,14 +182,14 @@ export default function LandingPage({ isSubscribed }) {
       setTimeout(() => {
         setCurrentIndex(currentIndex + 1);
         setIsExiting(false);
-      }, 800);
+      }, 500);
     }
 
     if (isLastCard || isSingleCardResponse) {
       setTimeout(() => {
         resetToDefaultFlashcards();
         setIsExiting(false);
-      }, 800);
+      }, 500);
     }
   };
 
@@ -274,7 +274,7 @@ export default function LandingPage({ isSubscribed }) {
                     opacity: isDefaultFlashcards() ? 0.5 : 1,
                     cursor: isDefaultFlashcards() ? "not-allowed" : "grab",
                     transition:
-                      "opacity 1.2s ease-in-out, transform 1.2s cubic-bezier(0.25, 0.1, 0.25, 1)",
+                      "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
                     transform: isExiting
                       ? "translateX(calc(100vw + 500px))" // Move the card off-screen to the right
                       : "translateX(0)",
@@ -305,8 +305,7 @@ export default function LandingPage({ isSubscribed }) {
                       transform: isFlipped
                         ? "rotateY(180deg)"
                         : "rotateY(0deg)",
-                      transition:
-                        "transform 1.2s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 1.2s ease-in-out", // Increased duration and changed timing function
+                      transition: "transform 0.7s, opacity 0.7s ease-in-out",
                       opacity: isExiting ? 0 : 1,
                       border: "2px solid pink",
                     }}

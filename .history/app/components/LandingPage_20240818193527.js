@@ -305,8 +305,7 @@ export default function LandingPage({ isSubscribed }) {
                       transform: isFlipped
                         ? "rotateY(180deg)"
                         : "rotateY(0deg)",
-                      transition:
-                        "transform 1.2s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 1.2s ease-in-out", // Increased duration and changed timing function
+                      transition: "transform 0.7s, opacity 0.7s ease-in-out",
                       opacity: isExiting ? 0 : 1,
                       border: "2px solid pink",
                     }}
