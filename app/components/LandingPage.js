@@ -157,12 +157,12 @@ export default function LandingPage({ isSubscribed }) {
     }
 
     const data = await response.json();
-    console.log("API response data:", data);
+    // console.log("API response data:", data);
     if (data.flashcards.length === 0) {
-      console.log("No flashcards received, resetting to default");
+      // console.log("No flashcards received, resetting to default");
       resetToDefaultFlashcards();
     } else {
-      console.log("Received flashcards:", data.flashcards);
+      // console.log("Received flashcards:", data.flashcards);
       setFlashcards(
         data.flashcards.map((card) => ({ ...card, isFlipped: false }))
       );
