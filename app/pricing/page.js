@@ -180,7 +180,7 @@ export default function PricingPage() {
         />
         <PricingCard
           title="Platinum"
-          price="$9.99/month"
+          price="$4.99/month"
           features={[
             "Advanced flashcards",
             "Unlimited storage",
