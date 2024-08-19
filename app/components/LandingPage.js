@@ -199,21 +199,13 @@ export default function LandingPage({ isSubscribed }) {
     }
   };
 
-  // const onSwipe = (direction) => {
-  //   if (direction === "right") {
-  //     if (currentIndex < flashcards.length - 1) {
-  //       setCurrentIndex(currentIndex + 1);
-  //       setIsFlipped(false);
-  //     }
-  //   }
-  // };
   const onSwipe = async (direction) => {
     if (isDefaultFlashcards()) return;
 
     if (direction === "up") {
       setIsSwipingUp(true);
       handleShareCard();
-      return; // Exit early to prevent moving to the next card
+      return; 
     }
 
     setIsExiting(true);
@@ -225,7 +217,6 @@ export default function LandingPage({ isSubscribed }) {
         setIsExiting(false);
       }, 800);
 
-      // Store the current flashcard in the database
       if (user) {
         const userRef = doc(db, "users", user.id);
         try {
@@ -292,26 +283,23 @@ export default function LandingPage({ isSubscribed }) {
       />
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 100)); // Ensure the content is rendered
+    await new Promise((resolve) => setTimeout(resolve, 100)); 
 
     const canvas = await html2canvas(captureElement, {
-      scale: 2, // Increase scale for higher quality
-      useCORS: true, // Handle cross-origin images properly
+      scale: 2, 
+      useCORS: true, 
     });
 
     document.body.removeChild(captureElement);
 
     const dataUrl = canvas.toDataURL("image/png", 1.0);
 
-    // Create a safe filename
     const filename = `${user.id}-${Date.now()}.png`;
     const storageRef = ref(storage, `flashcards/${filename}`);
 
     try {
-      // Upload image to Firebase Storage
       const snapshot = await uploadString(storageRef, dataUrl, "data_url");
 
-      // Get the image's download URL
       const downloadURL = await getDownloadURL(snapshot.ref);
 
       return downloadURL;
@@ -335,13 +323,11 @@ export default function LandingPage({ isSubscribed }) {
 
   const handleCloseShareModal = () => {
     setIsShareModalOpen(false);
-    setIsSwipingUp(false); // Reset swiping up state
+    setIsSwipingUp(false); 
 
-    // Move to the next card
     setCurrentIndex((prevIndex) => {
-      // If we're at the last card, wrap around to the first card (optional)
       if (prevIndex >= flashcards.length - 1) {
-        return 0; // or you can just return prevIndex to stay on the last card
+        return 0; 
       } else {
         return prevIndex + 1;
       }
@@ -352,7 +338,6 @@ export default function LandingPage({ isSubscribed }) {
     if (event.type === "touchend") {
       event.preventDefault();
 
-      // Add a small delay for touch events
       setTimeout(() => {
         if (!isSwiping) {
           setFlashcards((prevCards) =>
@@ -365,7 +350,6 @@ export default function LandingPage({ isSubscribed }) {
         }
       }, 100);
     } else {
-      // For click events, flip immediately
       if (!isSwiping) {
         setFlashcards((prevCards) =>
           prevCards.map((card, index) =>
