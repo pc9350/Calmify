@@ -8,12 +8,18 @@ import {
   ThemeProvider,
   createTheme,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Wallpaper from "../../public/landing-background.jpeg";
 import TinderCard from "react-tinder-card";
 import { doc, setDoc, arrayUnion } from "firebase/firestore";
-import { db } from "@/firebase";
+import { db, storage } from "@/firebase";
 import { useUser } from "@clerk/nextjs";
+import ShareModal from "./ShareModal";
+import html2canvas from "html2canvas";
+import CaptureCard from "@/utils/CaptureCard";
+import ReactDOM from "react-dom/client";
+import { getStorage } from "firebase/storage";
+import { ref, uploadString, getDownloadURL } from "firebase/storage";
 
 const theme = createTheme({
   typography: {
@@ -49,9 +55,13 @@ export default function LandingPage({ isSubscribed }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSwiping, setIsSwiping] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const { user } = useUser();
   const [isSwiped, setIsSwiped] = useState(true);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const flashcardRef = useRef(null);
+  const [shareImage, setShareImage] = useState(null);
+  const [isSwipingUp, setIsSwipingUp] = useState(false);
 
   const isDefaultFlashcards = () => {
     return (
@@ -179,11 +189,15 @@ export default function LandingPage({ isSubscribed }) {
   // };
   const onSwipe = async (direction) => {
     if (isDefaultFlashcards()) return;
-    setIsExiting(true);
 
+    if (direction === "up") {
+      setIsSwipingUp(true);
+      handleShareCard();
+      return; // Exit early to prevent moving to the next card
+    }
+
+    setIsExiting(true);
     const isLastCard = currentIndex >= flashcards.length - 1;
-    const isSingleCardResponse =
-      flashcards.length === 1 && !isDefaultFlashcards();
 
     if (direction === "right" && !isLastCard) {
       setTimeout(() => {
@@ -214,7 +228,7 @@ export default function LandingPage({ isSubscribed }) {
       }, 800);
     }
 
-    if (isLastCard || isSingleCardResponse) {
+    if (isLastCard) {
       setTimeout(() => {
         resetToDefaultFlashcards();
         setIsExiting(false);
@@ -240,6 +254,67 @@ export default function LandingPage({ isSubscribed }) {
         )
       );
     }
+  };
+
+  const captureFlashcard = async () => {
+    const captureElement = document.createElement("div");
+    document.body.appendChild(captureElement);
+
+    const root = ReactDOM.createRoot(captureElement);
+    root.render(
+      <CaptureCard
+        frontContent={flashcards[currentIndex].front}
+        backContent={flashcards[currentIndex].back}
+      />
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 100)); // Ensure the content is rendered
+
+    const canvas = await html2canvas(captureElement, {
+      scale: 2, // Increase scale for higher quality
+      useCORS: true, // Handle cross-origin images properly
+    });
+
+    document.body.removeChild(captureElement);
+
+    const dataUrl = canvas.toDataURL("image/png", 1.0);
+
+    // Create a safe filename
+    const filename = `${user.id}-${Date.now()}.png`;
+    const storageRef = ref(storage, `flashcards/${filename}`);
+
+    try {
+      // Upload image to Firebase Storage
+      const snapshot = await uploadString(storageRef, dataUrl, "data_url");
+
+      // Get the image's download URL
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      return downloadURL;
+    } catch (error) {
+      console.error("Error uploading the image:", error);
+      throw error;
+    }
+  };
+
+  const handleShareCard = async () => {
+    const imageUrl = await captureFlashcard();
+
+    if (!imageUrl) {
+      alert("Unable to generate image. Please try again.");
+      return;
+    }
+
+    setShareImage(imageUrl);
+    setIsShareModalOpen(true);
+  };
+
+  const handleCloseShareModal = () => {
+    setIsShareModalOpen(false);
+    setIsSwipingUp(false); // Reset swiping up state
+
+    // Re-render the current card by updating a dummy state to force a re-render if needed
+    setCurrentIndex((prevIndex) => prevIndex); // This should trigger the card to re-render with its original state
   };
 
   return (
@@ -287,18 +362,18 @@ export default function LandingPage({ isSubscribed }) {
               <TinderCard
                 key={`card-${currentIndex}-${flashcards[currentIndex]?.front}`}
                 flickOnSwipe
-                onSwipe={onSwipe}
-                onSwipeStart={handleSwipeStart}
-                onSwipeEnd={handleSwipeEnd}
+                onSwipe={(dir) => onSwipe(dir)}
                 preventSwipe={
                   isDefaultFlashcards()
-                    ? ["left", "right", "up", "bottom"]
-                    : ["up", "bottom"]
+                    ? ["left", "right", "up", "down"]
+                    : ["down"]
                 }
                 swipeRequirementType="position"
                 swipeThreshold={20}
               >
                 <Box
+                  ref={flashcardRef}
+                  onClick={handleCardClick}
                   sx={{
                     position: "relative",
                     width: "500px",
@@ -307,8 +382,8 @@ export default function LandingPage({ isSubscribed }) {
                     cursor: isDefaultFlashcards() ? "not-allowed" : "grab",
                     transition:
                       "opacity 1.2s ease-in-out, transform 1.2s cubic-bezier(0.25, 0.1, 0.25, 1)",
-                    transform: isExiting
-                      ? "translateX(calc(100vw + 500px))" // Move the card off-screen to the right
+                      transform: isExiting && !isSwipingUp
+                      ? "translateX(calc(100vw + 500px))" // Move the card off-screen to the right only if not swiping up
                       : "translateX(0)",
                     overflow: "visible",
                     animation: isExiting ? "none" : "slideIn 0.7s ease-out",
@@ -502,6 +577,12 @@ export default function LandingPage({ isSubscribed }) {
           </Box>
         </Box>
       </Box>
+      <ShareModal
+        open={isShareModalOpen}
+        handleClose={handleCloseShareModal}
+        cardContent={flashcards[currentIndex]}
+        imageUrl={shareImage}
+      />
     </ThemeProvider>
   );
 }
