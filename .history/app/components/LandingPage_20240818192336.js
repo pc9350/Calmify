@@ -10,7 +10,6 @@ import { db } from "@/firebase";
 import { useUser } from "@clerk/nextjs";
 
 export default function LandingPage({ isSubscribed }) {
-  const [isExiting, setIsExiting] = useState(false);
   const [userMessage, setUserMessage] = useState("");
   const [flashcards, setFlashcards] = useState([
     { front: "How are you feeling today?", back: "(^!^)" },
@@ -30,15 +29,9 @@ export default function LandingPage({ isSubscribed }) {
   };
 
   const resetToDefaultFlashcards = () => {
-    console.log("Resetting to default flashcards");
     setFlashcards([{ front: "How are you feeling today?", back: "(^!^)" }]);
     setCurrentIndex(0);
     setIsFlipped(false);
-    setIsExiting(false);
-
-    setTimeout(() => {
-      setFlashcards((prevFlashcards) => [...prevFlashcards]);
-    }, 0);
   };
 
   const [capturedValue, setCapturedValue] = useState({
@@ -116,10 +109,8 @@ export default function LandingPage({ isSubscribed }) {
     const data = await response.json();
     console.log("API response data:", data);
     if (data.flashcards.length === 0) {
-      console.log("No flashcards received, resetting to default");
       resetToDefaultFlashcards();
     } else {
-      console.log("Received flashcards:", data.flashcards);
       setFlashcards(data.flashcards);
       setCurrentIndex(0);
       setIsFlipped(false);
@@ -145,51 +136,32 @@ export default function LandingPage({ isSubscribed }) {
   const onSwipe = async (direction) => {
     if (isDefaultFlashcards()) return;
     setIsFlipped(false);
-    setIsExiting(true);
-
-    const isLastCard = currentIndex >= flashcards.length - 1;
-    const isSingleCardResponse =
-      flashcards.length === 1 && !isDefaultFlashcards();
-
-    console.log("Current index:", currentIndex);
-    console.log("Flashcards length:", flashcards.length);
-    console.log("Is last card:", isLastCard);
-    console.log("Is single card response:", isSingleCardResponse);
-
-    if (direction === "right" && !isLastCard) {
-      setTimeout(() => {
+    if (direction === "right") {
+      if (currentIndex < flashcards.length - 1) {
         setCurrentIndex(currentIndex + 1);
-        setIsExiting(false);
-      }, 500);
-
-      // Store the current flashcard in the database
-      if (user) {
-        const userRef = doc(db, "users", user.id);
-        try {
-          await setDoc(
-            userRef,
-            {
-              savedCards: arrayUnion(flashcards[currentIndex]),
-            },
-            { merge: true }
-          );
-          console.log("Card saved successfully");
-        } catch (error) {
-          console.error("Error saving card: ", error);
+        console.log(currentIndex);
+        // Store the current flashcard in the database
+        if (user) {
+          const userRef = doc(db, "users", user.id);
+          try {
+            await setDoc(
+              userRef,
+              {
+                savedCards: arrayUnion(flashcards[currentIndex]),
+              },
+              { merge: true }
+            );
+            console.log("Card saved successfully");
+          } catch (error) {
+            console.error("Error saving card: ", error);
+          }
         }
       }
-    } else if (!isLastCard) {
-      setTimeout(() => {
-        setCurrentIndex(currentIndex + 1);
-        setIsExiting(false);
-      }, 500);
+    } else {
+      setCurrentIndex(currentIndex + 1);
     }
-
-    if (isLastCard || isSingleCardResponse) {
-      setTimeout(() => {
-        resetToDefaultFlashcards();
-        setIsExiting(false);
-      }, 500);
+    if (currentIndex >= flashcards.length - 1) {
+      resetToDefaultFlashcards();
     }
   };
 
@@ -253,7 +225,7 @@ export default function LandingPage({ isSubscribed }) {
 
             {
               <TinderCard
-                key={`card-${currentIndex}-${flashcards[currentIndex]?.front}`}
+                key={currentIndex}
                 flickOnSwipe
                 onSwipe={onSwipe}
                 onSwipeStart={handleSwipeStart}
@@ -271,11 +243,8 @@ export default function LandingPage({ isSubscribed }) {
                     position: "relative",
                     width: "500px",
                     height: "500px",
-                    opacity: isDefaultFlashcards() ? 0.5 : 1,
+                    opacity: isDefaultFlashcards() ? 0.5 : 1, // Reduce opacity when swiping is disabled
                     cursor: isDefaultFlashcards() ? "not-allowed" : "grab",
-                    transition:
-                      "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
-                    transform: isExiting ? "translateX(100%)" : "translateX(0)",
                   }}
                 >
                   <Box
@@ -294,8 +263,7 @@ export default function LandingPage({ isSubscribed }) {
                       transform: isFlipped
                         ? "rotateY(180deg)"
                         : "rotateY(0deg)",
-                      transition: "transform 0.6s, opacity 0.3s ease-in-out",
-                      opacity: isExiting ? 0 : 1,
+                      transition: "transform 0.6s",
                       border: "2px solid pink",
                     }}
                   >
