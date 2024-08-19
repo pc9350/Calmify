@@ -316,9 +316,16 @@ export default function LandingPage({ isSubscribed }) {
   const handleCloseShareModal = () => {
     setIsShareModalOpen(false);
     setIsSwipingUp(false); // Reset swiping up state
-
-    // Re-render the current card by updating a dummy state to force a re-render if needed
-    setCurrentIndex((prevIndex) => prevIndex); // This should trigger the card to re-render with its original state
+  
+    // Move to the next card
+    setCurrentIndex((prevIndex) => {
+      // If we're at the last card, wrap around to the first card (optional)
+      if (prevIndex >= flashcards.length - 1) {
+        return 0; // or you can just return prevIndex to stay on the last card
+      } else {
+        return prevIndex + 1;
+      }
+    });
   };
 
   const handleCardInteraction = (event) => {
