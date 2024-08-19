@@ -20,7 +20,7 @@ const TeamPage = () => {
             avatar: "/isha_img.jpeg",
             name: "Isha Shreshtha",
             title: "Full Stack Developer",
-            desc: "Lorem Ipsum is simply dummy text of the printing and typesettin industry. Lorem Ipsum has been the industry's standard dummy",
+            desc: "A Student who loves to code and build cool stuff. I am passionate about learning new technologies and building projects. Feel free to reach out!",
             linkedin: "https://www.linkedin.com/in/isha-shrestha/",
             github: "https://github.com/isha038"
         },
