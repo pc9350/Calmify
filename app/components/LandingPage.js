@@ -244,7 +244,11 @@ export default function LandingPage({ isSubscribed }) {
     setIsSwiping(false);
   };
 
-  const handleCardClick = () => {
+  const handleCardClick = (event) => {
+    if (event.type === "touchend") {
+      event.preventDefault();
+    }
+
     if (!isSwiping) {
       setFlashcards((prevCards) =>
         prevCards.map((card, index) =>
@@ -317,6 +321,36 @@ export default function LandingPage({ isSubscribed }) {
     setCurrentIndex((prevIndex) => prevIndex); // This should trigger the card to re-render with its original state
   };
 
+  const handleCardInteraction = (event) => {
+    if (event.type === "touchend") {
+      event.preventDefault();
+
+      // Add a small delay for touch events
+      setTimeout(() => {
+        if (!isSwiping) {
+          setFlashcards((prevCards) =>
+            prevCards.map((card, index) =>
+              index === currentIndex
+                ? { ...card, isFlipped: !card.isFlipped }
+                : card
+            )
+          );
+        }
+      }, 100);
+    } else {
+      // For click events, flip immediately
+      if (!isSwiping) {
+        setFlashcards((prevCards) =>
+          prevCards.map((card, index) =>
+            index === currentIndex
+              ? { ...card, isFlipped: !card.isFlipped }
+              : card
+          )
+        );
+      }
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Box
@@ -368,23 +402,25 @@ export default function LandingPage({ isSubscribed }) {
                     ? ["left", "right", "up", "down"]
                     : ["down"]
                 }
-                swipeRequirementType="position"
-                swipeThreshold={20}
+                swipeRequirementType="velocity"
+                swipeThreshold={0.5}
+                touchThreshold={300}
               >
                 <Box
                   ref={flashcardRef}
-                  onClick={handleCardClick}
+                  onClick={handleCardInteraction}
+                  onTouchEnd={handleCardInteraction}
                   sx={{
                     position: "relative",
-                    width: "500px",
-                    height: "500px",
+                    width: isMobile ? "300px" : "500px",
+                    height: isMobile ? "300px" : "500px",
                     opacity: isDefaultFlashcards() ? 0.5 : 1,
                     cursor: isDefaultFlashcards() ? "not-allowed" : "grab",
-                    transition:
-                      "opacity 1.2s ease-in-out, transform 1.2s cubic-bezier(0.25, 0.1, 0.25, 1)",
-                      transform: isExiting && !isSwipingUp
-                      ? "translateX(calc(100vw + 500px))" // Move the card off-screen to the right only if not swiping up
-                      : "translateX(0)",
+                    transition: "all 0.3s ease-in-out",
+                    transform:
+                      isExiting && !isSwipingUp
+                        ? "translateX(calc(100vw + 500px))"
+                        : "translateX(0)",
                     overflow: "visible",
                     animation: isExiting ? "none" : "slideIn 0.7s ease-out",
                     "@keyframes slideIn": {
@@ -397,58 +433,53 @@ export default function LandingPage({ isSubscribed }) {
                   }}
                 >
                   <Box
-                    onClick={handleCardClick}
                     sx={{
-                      width: "500px",
-                      height: "500px",
-                      border: "none",
-                      borderRadius: "20px",
-                      background: "rgba(255, 255, 255, 0.8)",
-                      boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
+                      width: "100%",
+                      height: "100%",
                       transformStyle: "preserve-3d",
+                      transition: "transform 0.8s",
                       transform: flashcards[currentIndex].isFlipped
                         ? "rotateY(180deg)"
                         : "rotateY(0deg)",
-                      transition:
-                        "transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.8s ease-in-out",
-                      opacity: isExiting ? 0 : 1,
                     }}
                   >
+                    {/* Front of the card */}
                     <Box
                       sx={{
                         position: "absolute",
                         width: "100%",
                         height: "100%",
+                        backfaceVisibility: "hidden",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        backfaceVisibility: "hidden",
                         backgroundColor: "rgba(255, 255, 255, 0.9)",
                         borderRadius: "20px",
                         padding: "2rem",
-                        fontSize: "1.2rem",
+                        fontSize: isMobile ? "1rem" : "1.2rem",
                         lineHeight: 1.6,
                         color: "#333",
                       }}
                     >
                       {flashcards[currentIndex].front}
                     </Box>
+                    {/* Back of the card */}
                     <Box
                       sx={{
                         position: "absolute",
                         width: "100%",
                         height: "100%",
+                        backfaceVisibility: "hidden",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        backfaceVisibility: "hidden",
-                        transform: "rotateY(180deg)",
                         backgroundColor: "rgba(255, 255, 255, 0.9)",
                         borderRadius: "20px",
                         padding: "2rem",
-                        fontSize: "1.2rem",
+                        fontSize: isMobile ? "1rem" : "1.2rem",
                         lineHeight: 1.6,
                         color: "#333",
+                        transform: "rotateY(180deg)",
                       }}
                     >
                       {flashcards[currentIndex].back}
@@ -460,20 +491,21 @@ export default function LandingPage({ isSubscribed }) {
 
             <Box
               width="100%"
-              maxWidth="500px"
+              maxWidth={isMobile ? "300px" : "500px"}
               display="flex"
               alignItems="center"
               justifyContent="center"
-              flexDirection="row"
+              flexDirection={isMobile ? "column" : "row"}
               mt={4}
             >
               <div
                 style={{
-                  width: "500px",
+                  width: "100%",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  flexDirection: "row",
+                  flexDirection: "column",
+                  marginBottom: isMobile ? "10px" : "0",
                 }}
               >
                 <div
@@ -518,8 +550,9 @@ export default function LandingPage({ isSubscribed }) {
                 disabled={!userMessage.trim() || isLoading}
                 sx={{
                   height: "50px",
-                  marginLeft: "10px",
+                  marginLeft: isMobile ? "0" : "10px",
                   marginTop: "20px",
+                  width: isMobile ? "100%" : "auto",
                   textTransform: "none",
                   borderRadius: "25px",
                   padding: "0 20px",
