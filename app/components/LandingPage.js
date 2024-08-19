@@ -108,75 +108,45 @@ export default function LandingPage({ isSubscribed }) {
     }
   };
 
-  const classNameifyMessage = async (message) => {
-    try {
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
-
-      if (!response.ok) throw new Error("Network response was not ok");
-
-      const data = await response.json();
-      return data.type;
-    } catch (error) {
-      console.error("Error:", error);
-      return "other";
-    }
-  };
-
   const sendMessage = async () => {
     if (isLoading) return;
-
+  
     setIsLoading(true);
-
+  
     const messageToSend =
       userMessage.trim() ||
       (capturedValue.emotionType
         ? `I am feeling ${capturedValue.emotionType.toLowerCase()}`
         : "");
-
+  
     if (!messageToSend) {
       setIsLoading(false);
       return;
     }
-
-    const messageType = await classNameifyMessage(messageToSend);
-
-    let response;
-    if (messageType === "greeting") {
-      setFlashcards([
-        {
-          front: "Hello! How can I assist you today?",
-          back: "Hello! How can I assist you today?",
-        },
-      ]);
-    } else if (messageType === "emotional") {
-      response = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input: `Emotion: ${capturedValue.emotionType || messageToSend}`,
-        }),
-      });
-    } else {
-      response = await fetch("/api/generate", {
+  
+    try {
+      // Directly send the message to the API and let the server handle classification
+      const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ input: messageToSend }),
       });
-    }
-
-    if (response && !response.ok) {
-      console.error("Network response was not ok:", response.statusText);
-      setIsLoading(false);
-      throw new Error("Network response was not ok");
-    }
-
-    if (response) {
+  
+      if (!response.ok) {
+        console.error("Network response was not ok:", response.statusText);
+        throw new Error("Network response was not ok");
+      }
+  
       const data = await response.json();
-      if (data.flashcards.length === 0) {
+  
+      if (data.type === "greeting") {
+        setFlashcards([
+          {
+            front: "Hello! How can I assist you today?",
+            back: "Hello! How can I assist you today?",
+          },
+        ]);
+      } else if (data.flashcards.length === 0) {
         resetToDefaultFlashcards();
       } else {
         setFlashcards(
@@ -185,13 +155,99 @@ export default function LandingPage({ isSubscribed }) {
         setCurrentIndex(0);
         setIsFlipped(false);
       }
+    } catch (error) {
+      console.error("Error processing message:", error);
+    } finally {
+      setIsLoading(false);
+      setUserMessage("");
+      setHasFacialRecognitionResult(false);
+      setCapturedValue({});
     }
-
-    setIsLoading(false);
-    setUserMessage("");
-    setHasFacialRecognitionResult(false);
-    setCapturedValue({});
   };
+  // const classNameifyMessage = async (message) => {
+  //   try {
+  //     const response = await fetch("/api/generate", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ message }),
+  //     });
+
+  //     if (!response.ok) throw new Error("Network response was not ok");
+
+  //     const data = await response.json();
+  //     return data.type;
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //     return "other";
+  //   }
+  // };
+
+  // const sendMessage = async () => {
+  //   if (isLoading) return;
+
+  //   setIsLoading(true);
+
+  //   const messageToSend =
+  //     userMessage.trim() ||
+  //     (capturedValue.emotionType
+  //       ? `I am feeling ${capturedValue.emotionType.toLowerCase()}`
+  //       : "");
+
+  //   if (!messageToSend) {
+  //     setIsLoading(false);
+  //     return;
+  //   }
+
+  //   const messageType = await classNameifyMessage(messageToSend);
+
+  //   let response;
+  //   if (messageType === "greeting") {
+  //     setFlashcards([
+  //       {
+  //         front: "Hello! How can I assist you today?",
+  //         back: "Hello! How can I assist you today?",
+  //       },
+  //     ]);
+  //   } else if (messageType === "emotional") {
+  //     response = await fetch("/api/generate", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         input: `Emotion: ${capturedValue.emotionType || messageToSend}`,
+  //       }),
+  //     });
+  //   } else {
+  //     response = await fetch("/api/generate", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ input: messageToSend }),
+  //     });
+  //   }
+
+  //   if (response && !response.ok) {
+  //     console.error("Network response was not ok:", response.statusText);
+  //     setIsLoading(false);
+  //     throw new Error("Network response was not ok");
+  //   }
+
+  //   if (response) {
+  //     const data = await response.json();
+  //     if (data.flashcards.length === 0) {
+  //       resetToDefaultFlashcards();
+  //     } else {
+  //       setFlashcards(
+  //         data.flashcards.map((card) => ({ ...card, isFlipped: false }))
+  //       );
+  //       setCurrentIndex(0);
+  //       setIsFlipped(false);
+  //     }
+  //   }
+
+  //   setIsLoading(false);
+  //   setUserMessage("");
+  //   setHasFacialRecognitionResult(false);
+  //   setCapturedValue({});
+  // };
 
   const handleKeyPress = (event) => {
     if (event.key === "Enter" && !event.shiftKey) {

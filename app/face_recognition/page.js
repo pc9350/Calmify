@@ -34,7 +34,7 @@ const CameraComponent = ({ isOpen, onClose, onCapture }) => {
 
         if (response.ok) {
           const result = await response.json();
-          console.log("Emotion detection result:", result);
+          // console.log("Emotion detection result:", result);
           setEmotionResult(result);
           onCapture(result);
         } else {
