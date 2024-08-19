@@ -107,26 +107,6 @@ export default function LandingPage({ isSubscribed }) {
       setCapturedValue({});
     }
   };
-<<<<<<< HEAD
-=======
-  const classNameifyMessage = async (message) => {
-    try {
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
-
-      if (!response.ok) throw new Error("Network response was not ok");
-
-      const data = await response.json();
-      return data.type;
-    } catch (error) {
-      console.error("Error:", error);
-      return "other";
-    }
-  };
->>>>>>> 6c76c037c608b38527264290cee25355761c7193
 
   const sendMessage = async () => {
     if (isLoading) return;
@@ -183,14 +163,6 @@ export default function LandingPage({ isSubscribed }) {
       setHasFacialRecognitionResult(false);
       setCapturedValue({});
     }
-<<<<<<< HEAD
-=======
-
-    setUserMessage("");
-    setHasFacialRecognitionResult(false);
-    setCapturedValue({});
-    setIsLoading(false);
->>>>>>> 6c76c037c608b38527264290cee25355761c7193
   };
   // const classNameifyMessage = async (message) => {
   //   try {
