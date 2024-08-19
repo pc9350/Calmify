@@ -39,7 +39,7 @@ export async function POST(req) {
                 { role: "system", content: systemAndFlashcardPrompt },
                 { role: "user", content: data }
             ],
-            model: "gpt-4-turbo"
+            model: "gpt-4o-mini"
         });
 
         let flashcardsResponse;
