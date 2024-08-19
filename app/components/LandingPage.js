@@ -1,13 +1,43 @@
 "use client";
 
 import FacialRecognitionButton from "./FacialRecognitionButton";
-import { Box, Button } from "@mui/material";
+import {
+  Box,
+  Button,
+  useMediaQuery,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 import React, { useState } from "react";
 import Wallpaper from "../../public/landing-background.jpeg";
 import TinderCard from "react-tinder-card";
 import { doc, setDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/firebase";
 import { useUser } from "@clerk/nextjs";
+
+const theme = createTheme({
+  typography: {
+    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
+    h1: {
+      fontSize: "2.5rem",
+      fontWeight: 500,
+      color: "#333",
+    },
+    body1: {
+      fontSize: "1rem",
+      color: "#666",
+    },
+  },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 960,
+      lg: 1280,
+      xl: 1920,
+    },
+  },
+});
 
 export default function LandingPage({ isSubscribed }) {
   const [isExiting, setIsExiting] = useState(false);
@@ -21,6 +51,7 @@ export default function LandingPage({ isSubscribed }) {
   const [isSwiping, setIsSwiping] = useState(false);
   const { user } = useUser();
   const [isSwiped, setIsSwiped] = useState(true);
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const isDefaultFlashcards = () => {
     return (
@@ -58,7 +89,7 @@ export default function LandingPage({ isSubscribed }) {
     }
   };
 
-  const classifyMessage = async (message) => {
+  const classNameifyMessage = async (message) => {
     try {
       const response = await fetch("/api/generate", {
         method: "POST",
@@ -86,7 +117,7 @@ export default function LandingPage({ isSubscribed }) {
 
     setIsLoading(true);
 
-    const messageType = await classifyMessage(messageToSend);
+    const messageType = await classNameifyMessage(messageToSend);
 
     let response;
     if (messageType === "greeting") {
@@ -212,19 +243,16 @@ export default function LandingPage({ isSubscribed }) {
   };
 
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <Box
         sx={{
-          backgroundImage: `url(${Wallpaper.src})`,
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-          flexDirection: "column",
+          background: "linear-gradient(135deg, #e0f2f1 0%, #e1bee7 100%)",
+          minHeight: "100vh",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          width: "100vw",
-          height: "100vh",
-          overflow: "hidden",
+          padding: "2rem",
         }}
       >
         <Box
@@ -244,10 +272,10 @@ export default function LandingPage({ isSubscribed }) {
             sx={{ width: "100%", position: "relative" }}
           >
             {isLoading ? (
-              <div class="flex flex-row gap-2">
-                <div class="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.7s]"></div>
-                <div class="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.3s]"></div>
-                <div class="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.7s]"></div>
+              <div className="flex flex-row gap-2">
+                <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.7s]"></div>
+                <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.3s]"></div>
+                <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:.7s]"></div>
                 <br></br>
                 <br></br>
               </div>
@@ -299,21 +327,16 @@ export default function LandingPage({ isSubscribed }) {
                       width: "500px",
                       height: "500px",
                       border: "none",
-                      borderRadius: "10px",
-                      background:
-                        "radial-gradient(ellipse farthest-side at 76% 77%, rgba(245, 228, 212, 0.25) 4%, rgba(255, 255, 255, 0) calc(4% + 1px)), radial-gradient(circle at 76% 40%, #fef6ec 4%, rgba(255, 255, 255, 0) 4.18%), linear-gradient(135deg, #ff0000 0%, #000036 100%), radial-gradient(ellipse at 28% 0%, #ffcfac 0%, rgba(98, 149, 144, 0.5) 100%), linear-gradient(180deg, #cd6e8a 0%, #f5eab0 69%, #d6c8a2 70%, #a2758d 100%)",
-                      backgroundBlendMode:
-                        "normal, normal, screen, overlay, normal",
-                      boxShadow: "0px 0px 10px 1px #000000",
+                      borderRadius: "20px",
+                      background: "rgba(255, 255, 255, 0.8)",
+                      boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
                       transformStyle: "preserve-3d",
                       transform: flashcards[currentIndex].isFlipped
                         ? "rotateY(180deg)"
                         : "rotateY(0deg)",
-
                       transition:
-                        "transform 1.2s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 1.2s ease-in-out", // Increased duration and changed timing function
+                        "transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.8s ease-in-out",
                       opacity: isExiting ? 0 : 1,
-                      border: "2px solid pink",
                     }}
                   >
                     <Box
@@ -325,11 +348,12 @@ export default function LandingPage({ isSubscribed }) {
                         alignItems: "center",
                         justifyContent: "center",
                         backfaceVisibility: "hidden",
-                        backgroundColor: "rgba(255, 255, 255, 0.8)",
-                        borderRadius: "8px",
-                        boxShadow: "0 4px 8px rgba(128, 128, 128, 0.5)",
-                        color: "black",
-                        p: 3,
+                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        borderRadius: "20px",
+                        padding: "2rem",
+                        fontSize: "1.2rem",
+                        lineHeight: 1.6,
+                        color: "#333",
                       }}
                     >
                       {flashcards[currentIndex].front}
@@ -344,11 +368,12 @@ export default function LandingPage({ isSubscribed }) {
                         justifyContent: "center",
                         backfaceVisibility: "hidden",
                         transform: "rotateY(180deg)",
-                        backgroundColor: "rgba(255, 255, 255, 0.8)",
-                        borderRadius: "8px",
-                        boxShadow: "0 4px 8px rgba(128, 128, 128, 0.5)",
-                        color: "black",
-                        p: 3,
+                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        borderRadius: "20px",
+                        padding: "2rem",
+                        fontSize: "1.2rem",
+                        lineHeight: 1.6,
+                        color: "#333",
                       }}
                     >
                       {flashcards[currentIndex].back}
@@ -365,6 +390,7 @@ export default function LandingPage({ isSubscribed }) {
               alignItems="center"
               justifyContent="center"
               flexDirection="row"
+              mt={4}
             >
               <div
                 style={{
@@ -382,32 +408,25 @@ export default function LandingPage({ isSubscribed }) {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    background:
-                      "linear-gradient(to bottom, rgb(227, 213, 255), rgb(255, 231, 231))",
-                    borderRadius: "10px",
+                    background: "rgba(255, 255, 255, 0.8)",
+                    borderRadius: "25px",
                     overflow: "hidden",
-                    boxShadow: "0px 0px 10px 1px #000000",
+                    boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)",
                     marginTop: "20px",
-                    border: "2px solid pink",
                   }}
                 >
                   <input
                     style={{
                       width: "97%",
-                      height: "35px",
+                      height: "100%",
                       border: "none",
                       outline: "none",
                       caretColor: "rgb(255, 81, 0)",
-                      backgroundColor: "rgb(255, 255, 255)",
-                      borderRadius: "10px",
-                      paddingLeft: "15px",
+                      backgroundColor: "transparent",
+                      paddingLeft: "20px",
                       letterSpacing: "0.8px",
                       color: "rgb(19, 19, 19)",
-                      fontSize: "13.4px",
-                      ...(isLoading && {
-                        backgroundColor: "rgba(255, 255, 255, 0.8)",
-                        cursor: "not-allowed",
-                      }),
+                      fontSize: "16px",
                     }}
                     placeholder="Message"
                     value={userMessage}
@@ -424,43 +443,21 @@ export default function LandingPage({ isSubscribed }) {
                 disabled={!userMessage.trim() || isLoading}
                 sx={{
                   height: "50px",
-                  width: "80px",
-                  marginLeft: "5px",
+                  marginLeft: "10px",
                   marginTop: "20px",
                   textTransform: "none",
-                  border: "2px solid pink",
-                  outline: "none",
+                  borderRadius: "25px",
+                  padding: "0 20px",
+                  fontSize: "16px",
+                  backgroundColor: "rgba(255, 255, 255, 0.8)",
                   color: "rgb(19, 19, 19)",
-                  background:
-                    "linear-gradient(to bottom, rgb(227, 213, 255), rgb(255, 231, 231))",
-                  borderRadius: "10px",
-                  paddingLeft: "15px",
-                  letterSpacing: "0.8px",
-                  fontSize: "13.4px",
-                  cursor: isLoading ? "not-allowed" : "pointer",
+                  boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)",
                   "&:hover": {
-                    backgroundColor: isLoading
-                      ? "rgba(255, 255, 255, 0.8)"
-                      : "rgba(255, 255, 255, 0.9)",
-                  },
-                  "&:focus": {
-                    outline: "none",
+                    backgroundColor: "rgba(255, 255, 255, 0.9)",
                   },
                 }}
               >
-                <Box
-                  height="35px"
-                  width="60px"
-                  border="none"
-                  borderRadius="10px"
-                  alignItems="center"
-                  display="flex"
-                  justifyContent="center"
-                  backgroundColor="rgba(255, 255, 255, 0.8)"
-                  padding="15px"
-                >
-                  {isLoading ? "Sending..." : "Send"}
-                </Box>
+                {isLoading ? "Sending..." : "Send"}
               </Button>
             </Box>
             {isSubscribed && (
@@ -505,6 +502,6 @@ export default function LandingPage({ isSubscribed }) {
           </Box>
         </Box>
       </Box>
-    </>
+    </ThemeProvider>
   );
 }
