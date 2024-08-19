@@ -64,6 +64,7 @@ export default function LandingPage({ isSubscribed }) {
   const [isSwipingUp, setIsSwipingUp] = useState(false);
   const [hasFacialRecognitionResult, setHasFacialRecognitionResult] =
     useState(false);
+  isSubscribed = true;
 
   const isDefaultFlashcards = () => {
     return (
@@ -186,10 +187,10 @@ export default function LandingPage({ isSubscribed }) {
       }
     }
 
+    setIsLoading(false);
     setUserMessage("");
     setHasFacialRecognitionResult(false);
     setCapturedValue({});
-    setIsLoading(false);
   };
 
   const handleKeyPress = (event) => {

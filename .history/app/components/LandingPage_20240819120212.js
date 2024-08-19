@@ -64,6 +64,7 @@ export default function LandingPage({ isSubscribed }) {
   const [isSwipingUp, setIsSwipingUp] = useState(false);
   const [hasFacialRecognitionResult, setHasFacialRecognitionResult] =
     useState(false);
+  isSubscribed = true;
 
   const isDefaultFlashcards = () => {
     return (

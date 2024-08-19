@@ -64,6 +64,7 @@ export default function LandingPage({ isSubscribed }) {
   const [isSwipingUp, setIsSwipingUp] = useState(false);
   const [hasFacialRecognitionResult, setHasFacialRecognitionResult] =
     useState(false);
+  isSubscribed = true;
 
   const isDefaultFlashcards = () => {
     return (
@@ -186,10 +187,10 @@ export default function LandingPage({ isSubscribed }) {
       }
     }
 
+    setIsLoading(false);
     setUserMessage("");
     setHasFacialRecognitionResult(false);
     setCapturedValue({});
-    setIsLoading(false);
   };
 
   const handleKeyPress = (event) => {
@@ -576,7 +577,9 @@ export default function LandingPage({ isSubscribed }) {
                 onClick={sendMessage}
                 disabled={
                   (!userMessage.trim() && !hasFacialRecognitionResult) ||
-                  isLoading
+                  isLoading ||
+                  (capturedValue.emotionType === undefined &&
+                    !userMessage.trim())
                 }
                 sx={{
                   height: "50px",
@@ -639,7 +642,6 @@ export default function LandingPage({ isSubscribed }) {
                   onClick={() => {
                     setHasFacialRecognitionResult(false);
                     setCapturedValue({});
-                    setUserMessage("");
                   }}
                 />
               </Box>
