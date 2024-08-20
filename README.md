@@ -50,8 +50,7 @@ Calmify's interface is designed with user experience in mind, offering a clean, 
 
 ## 📸 Screenshots
 
-![Home Page](./assets/screenshot1.png)
-![Flashcards](./assets/screenshot2.png)
+![Home Page](./public/hero-page.jpeg)
 
 ## 📈 Future Enhancements
 
