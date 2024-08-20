@@ -1,6 +1,6 @@
 # 🌟 Calmify – AI-Powered Emotional Support Platform
 
-![Calmify Logo](./assets/calmify-logo.png)
+![Calmify Logo](./public/calmify-logo.png)
 
 [![Vercel](https://vercel.com/button)](https://calmify-ten.vercel.app/)
 [![Next.js](https://img.shields.io/badge/Next.js-Framework-black)](https://nextjs.org/)
