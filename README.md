@@ -10,7 +10,7 @@
 
 **Calmify** is an AI-powered platform designed to provide personalized emotional support through custom flashcards. Whether you're feeling sad, confused, or in need of some encouragement, Calmify offers tailored advice and positive affirmations to help you navigate your emotions.
 
-![Calmify Demo](./assets/calmify-demo.gif)
+![Calmify Demo](https://www.youtube.com/watch?v=6Bv7J_ynfhs)
 
 ## 🌐 Live Demo
 
